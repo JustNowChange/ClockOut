@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.idea/
+*.log
+*.swp
+*.swo
+.env.development
+.env.production
+*.tsbuildinfo

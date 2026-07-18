@@ -1,0 +1,64 @@
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.grid-item {
+  background: #fff;
+  border-radius: 12px;
+  padding: 30px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.day-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.day-header p {
+  margin: 0;
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+}
+
+.check-icon {
+  color: #27ae60;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.complete-time {
+  margin: 8px 0;
+  font-size: 12px;
+  color: #666;
+}
+
+.grid-item button {
+  padding: 8px 24px;
+  background: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.grid-item button:hover {
+  background: #c0392b;
+}
+
+.grid-item button.completed {
+  background: #27ae60;
+}
+
+.grid-item button.completed:hover {
+  background: #2ecc71;
+}
