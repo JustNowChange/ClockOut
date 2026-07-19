@@ -9,7 +9,7 @@ export function getClockDetail(dayId: number) {
 }
 
 export function uploadImage(data: FormData) {
-  return http.post('/upload/image', data, {
+  return http.post('/upload', data, {
     headers: {
       'Content-Type': 'multipart/form-data'
     }

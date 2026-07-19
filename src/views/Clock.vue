@@ -96,6 +96,9 @@ async function uploadScreenshot() {
     
     const res = await uploadImageApi(formData)
     console.log('上传成功:', res)
+    if (res) {
+      detailData.value.imageUrl = `${import.meta.env.VITE_API_URL}${res}`
+    }
     alert('截图上传成功')
     screenshotData.value = ''
   } catch (error) {
