@@ -1,17 +1,13 @@
-import http from '../utils/http'
+import http, { ApiResult } from '../utils/http'
 
 export interface LoginResponse {
-  code: number
-  message: string
-  data: {
-    token: string
-    refreshToken: string
-    expiresIn: number
-    user: {
-      id: number
-      username: string
-      email: string
-    }
+  token: string
+  refreshToken: string
+  expiresIn: number
+  user: {
+    id: number
+    username: string
+    email: string
   }
 }
 
@@ -20,18 +16,18 @@ export interface LoginRequest {
   password: string
 }
 
-export function login(data: LoginRequest) {
-  return http.post<LoginResponse>('/auth/login', data)
+export function login(data: LoginRequest): Promise<ApiResult<LoginResponse>> {
+  return http.post('/auth/login', data) as Promise<ApiResult<LoginResponse>>
 }
 
-export function logout() {
-  return http.post('/auth/logout')
+export function logout(): Promise<ApiResult> {
+  return http.post('/auth/logout') as Promise<ApiResult>
 }
 
-export function refreshToken(refreshToken: string) {
-  return http.post<LoginResponse>('/auth/refresh', { refreshToken })
+export function refreshToken(refreshToken: string): Promise<ApiResult<LoginResponse>> {
+  return http.post('/auth/refresh', { refreshToken }) as Promise<ApiResult<LoginResponse>>
 }
 
-export function getUserInfo() {
-  return http.get('/auth/me')
+export function getUserInfo(): Promise<ApiResult<{ id: number; username: string; email: string }>> {
+  return http.get('/auth/me') as Promise<ApiResult<{ id: number; username: string; email: string }>>
 }

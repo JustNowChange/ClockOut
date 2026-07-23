@@ -1,5 +1,11 @@
 import axios, { AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
 
+export interface ApiResult<T = any> {
+  code: number
+  message: string
+  data: T
+}
+
 const http = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '/api',
   timeout: 10000,
@@ -42,11 +48,11 @@ http.interceptors.request.use(
 
 let isRefreshing = false
 let failedQueue: Array<{
-  resolve: (value: AxiosResponse) => void
+  resolve: (value: any) => void
   reject: (reason?: any) => void
 }> = []
 
-function processQueue(error: any, token: string | null = null) {
+function processQueue(error: any) {
   failedQueue.forEach(({ resolve, reject }) => {
     if (error) {
       reject(error)
@@ -58,7 +64,9 @@ function processQueue(error: any, token: string | null = null) {
 }
 
 http.interceptors.response.use(
-  (response) => response.data,
+  (response: AxiosResponse) => {
+    return response.data as AxiosResponse
+  },
   async (error) => {
     const originalRequest = error.config as AxiosRequestConfig & { _retry?: boolean }
     
@@ -86,7 +94,7 @@ http.interceptors.response.use(
         const refreshToken = getRefreshToken()
         if (!refreshToken) {
           removeToken()
-          processQueue(new Error('No refresh token'), null)
+          processQueue(new Error('No refresh token'))
           isRefreshing = false
           window.location.href = '/'
           return Promise.reject(error)
@@ -96,7 +104,7 @@ http.interceptors.response.use(
           '/auth/refresh',
           { refreshToken },
           { headers: { 'X-Skip-Token': 'true' } }
-        )
+        ) as unknown as ApiResult<{ token: string; refreshToken: string }>
         
         if (refreshResponse.code === 200 && refreshResponse.data) {
           const newToken = refreshResponse.data.token
@@ -109,7 +117,7 @@ http.interceptors.response.use(
             originalRequest.headers.Authorization = `Bearer ${newToken}`
           }
           
-          processQueue(null, newToken)
+          processQueue(null)
           isRefreshing = false
           
           return http(originalRequest)
@@ -118,7 +126,7 @@ http.interceptors.response.use(
         }
       } catch (refreshError) {
         removeToken()
-        processQueue(refreshError, null)
+        processQueue(refreshError)
         isRefreshing = false
         window.location.href = '/'
         return Promise.reject(refreshError)
