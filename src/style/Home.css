@@ -95,11 +95,12 @@
 /* Right Panel */
 .right-panel {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   background: #fff;
   padding: 40px;
   overflow-y: auto;
+  padding-top: 60px;
 }
 
 .form-container {
