@@ -1,5 +1,5 @@
 import { ref, computed } from 'vue'
-import { login as loginApi, logout as logoutApi, getUserInfo } from '../api/auth'
+import { login as loginApi } from '../api/auth'
 import { setToken, removeToken, getToken } from '../utils/http'
 
 export interface UserInfo {
@@ -74,45 +74,21 @@ export function useAuth() {
     }
   }
 
-  async function logout(): Promise<void> {
+  function logout(): void {
+    removeToken()
+    isAuthenticated.value = false
+    user.value = null
     error.value = null
-    try {
-      await logoutApi()
-    } catch (err: any) {
-      error.value = getErrorMessage(err)
-    } finally {
-      removeToken()
-      isAuthenticated.value = false
-      user.value = null
-    }
   }
 
-  async function checkAuth(): Promise<boolean> {
+  function checkAuth(): boolean {
     const storedToken = getToken()
-    if (!storedToken) {
-      isAuthenticated.value = false
-      return false
+    if (storedToken) {
+      isAuthenticated.value = true
+      return true
     }
-
-    error.value = null
-    try {
-      const response = await getUserInfo()
-      if (response.code === 1) {
-        isAuthenticated.value = true
-        user.value = response.data
-        return true
-      } else {
-        removeToken()
-        isAuthenticated.value = false
-        error.value = response.msg || '认证失败'
-        return false
-      }
-    } catch (err: any) {
-      removeToken()
-      isAuthenticated.value = false
-      error.value = getErrorMessage(err)
-      return false
-    }
+    isAuthenticated.value = false
+    return false
   }
 
   return {
