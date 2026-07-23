@@ -14,7 +14,7 @@
         <div v-if="studyTime" class="study-info">
           <p>学习时间: {{ studyTime }}</p>
           <button v-if="!detailData.status" @click="captureScreen" class="upload-btn">截取屏幕</button>
-          <button v-if="screenshotData" @click="uploadScreenshot" class="upload-btn">上传截图</button>
+          <button v-if="screenshotData" @click="handleUpload" class="upload-btn">上传截图</button>
         </div>
       </div>
       
@@ -30,80 +30,34 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import useClock from '../function/useClock'
-import { getClockDetail, uploadImage as uploadImageApi } from '../api/clock'
+import useScreenshot from '../function/useScreenshot'
+import useClockDetail from '../function/useClockDetail'
 import { isShow, show, studyTime } from '../function/isShow'
 
 const router = useRouter()
 const route = useRoute()
 const { currentTime } = useClock()
-const screenshotData = ref<string>('')
-const detailData = ref<any>({})
+const { screenshotData, captureScreen, uploadScreenshot } = useScreenshot()
 
-onMounted(async () => {
-  const dayId = parseInt(route.query.dayId as string)
-  if (dayId) {
-    try {
-      const res = await getClockDetail(dayId)
-      detailData.value = res.data || {}
-    } catch (error) {
-      console.error('获取详情失败:', error)
-    }
-  }
+const dayId = computed(() => {
+  const id = parseInt(route.query.dayId as string)
+  return isNaN(id) ? null : id
 })
 
+const { detailData, updateImageUrl } = useClockDetail(dayId.value)
+
 function goBack() {
-  router.push('/')
+  router.push('/home')
 }
 
-async function captureScreen() {
-  try {
-    const stream = await navigator.mediaDevices.getDisplayMedia({
-      video: true,
-      audio: false
+function handleUpload() {
+  if (dayId.value) {
+    uploadScreenshot(dayId.value, (imageUrl) => {
+      updateImageUrl(imageUrl)
     })
-    const video = document.createElement('video')
-    video.srcObject = stream
-    await video.play()
-    
-    const canvas = document.createElement('canvas')
-    canvas.width = video.videoWidth
-    canvas.height = video.videoHeight
-    const ctx = canvas.getContext('2d')
-    ctx!.drawImage(video, 0, 0)
-    
-    stream.getTracks().forEach(track => track.stop())
-    screenshotData.value = canvas.toDataURL('image/png')
-  } catch (error) {
-    console.error('截图失败:', error)
-    alert('截图失败，请允许屏幕录制权限')
-  }
-}
-
-async function uploadScreenshot() {
-  if (!screenshotData.value) return
-  try {
-    const response = await fetch(screenshotData.value)
-    const blob = await response.blob()
-    const file = new File([blob], 'screenshot.png', { type: 'image/png' })
-    const dayId = parseInt(route.query.dayId as string)
-    
-    const formData = new FormData()
-    formData.append('image', file)
-    formData.append('dayId', dayId.toString())
-    
-    const res = await uploadImageApi(formData)
-    console.log('上传成功:', res)
-    if (res) {
-      detailData.value.imageUrl = `${import.meta.env.VITE_API_URL}${res}`
-    }
-    alert('截图上传成功')
-    screenshotData.value = ''
-  } catch (error) {
-    console.error('上传失败:', error)
-    alert('截图上传失败')
   }
 }
 </script>

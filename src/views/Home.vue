@@ -95,184 +95,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import useClock from '../function/useClock'
-import { getStudyDays } from '../api/clock'
+import useStudyDays from '../function/useStudyDays'
+import useCharacters from '../function/useCharacters'
 
 const router = useRouter()
 const { currentTime } = useClock()
-const studyDays = ref<any[]>([])
-
-// Mouse tracking for character animation
-let mouseX = 0, mouseY = 0
-let isPurpleBlinking = false, isBlackBlinking = false
-let typingTimer: ReturnType<typeof setTimeout> | null = null
-let blinkPurpleTimer: ReturnType<typeof setTimeout> | null = null
-let blinkBlackTimer: ReturnType<typeof setTimeout> | null = null
-
-onMounted(async () => {
-  // Fetch study days
-  try {
-    const res = await getStudyDays()
-    studyDays.value = res.data || []
-  } catch (error) {
-    console.error('获取学习天数失败:', error)
-  }
-
-  // Character animation setup
-  document.addEventListener('mousemove', handleMouseMove)
-  scheduleBlinkPurple()
-  scheduleBlinkBlack()
-  updateCharacters()
-})
-
-onUnmounted(() => {
-  document.removeEventListener('mousemove', handleMouseMove)
-  if (typingTimer) clearTimeout(typingTimer)
-  if (blinkPurpleTimer) clearTimeout(blinkPurpleTimer)
-  if (blinkBlackTimer) clearTimeout(blinkBlackTimer)
-})
-
-function handleMouseMove(e: MouseEvent) {
-  mouseX = e.clientX
-  mouseY = e.clientY
-  updateCharacters()
-}
+const { studyDays } = useStudyDays()
+useCharacters()
 
 function goToStudy(day: any) {
   router.push(`/clock?dayId=${day.id}`)
-}
-
-// Character animation logic
-function calcPosition(el: HTMLElement) {
-  const rect = el.getBoundingClientRect()
-  const cx = rect.left + rect.width / 2
-  const cy = rect.top + rect.height / 3
-  const dx = mouseX - cx
-  const dy = mouseY - cy
-  const faceX = Math.max(-15, Math.min(15, dx / 20))
-  const faceY = Math.max(-10, Math.min(10, dy / 30))
-  const bodySkew = Math.max(-6, Math.min(6, -dx / 120))
-  return { faceX, faceY, bodySkew }
-}
-
-function calcPupilOffset(el: HTMLElement, maxDist: number) {
-  const rect = el.getBoundingClientRect()
-  const cx = rect.left + rect.width / 2
-  const cy = rect.top + rect.height / 2
-  const dx = mouseX - cx
-  const dy = mouseY - cy
-  const dist = Math.min(Math.sqrt(dx * dx + dy * dy), maxDist)
-  const angle = Math.atan2(dy, dx)
-  return { x: Math.cos(angle) * dist, y: Math.sin(angle) * dist }
-}
-
-function scheduleBlinkPurple() {
-  blinkPurpleTimer = setTimeout(() => {
-    isPurpleBlinking = true
-    updateCharacters()
-    setTimeout(() => {
-      isPurpleBlinking = false
-      updateCharacters()
-      scheduleBlinkPurple()
-    }, 150)
-  }, Math.random() * 4000 + 3000)
-}
-
-function scheduleBlinkBlack() {
-  blinkBlackTimer = setTimeout(() => {
-    isBlackBlinking = true
-    updateCharacters()
-    setTimeout(() => {
-      isBlackBlinking = false
-      updateCharacters()
-      scheduleBlinkBlack()
-    }, 150)
-  }, Math.random() * 4000 + 3000)
-}
-
-function updateCharacters() {
-  const purple = document.getElementById('char-purple') as HTMLElement
-  const black = document.getElementById('char-black') as HTMLElement
-  const orange = document.getElementById('char-orange') as HTMLElement
-  const yellow = document.getElementById('char-yellow') as HTMLElement
-
-  if (!purple || !black || !orange || !yellow) return
-
-  const purplePos = calcPosition(purple)
-  const blackPos = calcPosition(black)
-  const orangePos = calcPosition(orange)
-  const yellowPos = calcPosition(yellow)
-
-  // Purple body
-  purple.style.transform = `skewX(${purplePos.bodySkew}deg)`
-  purple.style.height = '370px'
-
-  // Purple eyes
-  const purpleEyes = document.getElementById('purple-eyes') as HTMLElement
-  const purpleEyeL = document.getElementById('purple-eye-l') as HTMLElement
-  const purpleEyeR = document.getElementById('purple-eye-r') as HTMLElement
-  const purplePupilL = document.getElementById('purple-pupil-l') as HTMLElement
-  const purplePupilR = document.getElementById('purple-pupil-r') as HTMLElement
-
-  purpleEyeL.style.height = isPurpleBlinking ? '2px' : '18px'
-  purpleEyeR.style.height = isPurpleBlinking ? '2px' : '18px'
-  purpleEyes.style.left = 45 + purplePos.faceX + 'px'
-  purpleEyes.style.top = 40 + purplePos.faceY + 'px'
-  const po = calcPupilOffset(purpleEyeL, 5)
-  purplePupilL.style.transform = `translate(${po.x}px, ${po.y}px)`
-  purplePupilR.style.transform = `translate(${po.x}px, ${po.y}px)`
-
-  // Black body
-  black.style.transform = `skewX(${blackPos.bodySkew}deg)`
-
-  // Black eyes
-  const blackEyes = document.getElementById('black-eyes') as HTMLElement
-  const blackEyeL = document.getElementById('black-eye-l') as HTMLElement
-  const blackEyeR = document.getElementById('black-eye-r') as HTMLElement
-  const blackPupilL = document.getElementById('black-pupil-l') as HTMLElement
-  const blackPupilR = document.getElementById('black-pupil-r') as HTMLElement
-
-  blackEyeL.style.height = isBlackBlinking ? '2px' : '16px'
-  blackEyeR.style.height = isBlackBlinking ? '2px' : '16px'
-  blackEyes.style.left = 26 + blackPos.faceX + 'px'
-  blackEyes.style.top = 32 + blackPos.faceY + 'px'
-  const bo = calcPupilOffset(blackEyeL, 4)
-  blackPupilL.style.transform = `translate(${bo.x}px, ${bo.y}px)`
-  blackPupilR.style.transform = `translate(${bo.x}px, ${bo.y}px)`
-
-  // Orange body
-  orange.style.transform = `skewX(${orangePos.bodySkew}deg)`
-
-  // Orange eyes
-  const orangeEyes = document.getElementById('orange-eyes') as HTMLElement
-  const orangePupilL = document.getElementById('orange-pupil-l') as HTMLElement
-  const orangePupilR = document.getElementById('orange-pupil-r') as HTMLElement
-
-  orangeEyes.style.left = 82 + orangePos.faceX + 'px'
-  orangeEyes.style.top = 90 + orangePos.faceY + 'px'
-  const oo = calcPupilOffset(orangePupilL, 5)
-  orangePupilL.style.transform = `translate(${oo.x}px, ${oo.y}px)`
-  orangePupilR.style.transform = `translate(${oo.x}px, ${oo.y}px)`
-
-  // Yellow body
-  yellow.style.transform = `skewX(${yellowPos.bodySkew}deg)`
-
-  // Yellow eyes & mouth
-  const yellowEyes = document.getElementById('yellow-eyes') as HTMLElement
-  const yellowPupilL = document.getElementById('yellow-pupil-l') as HTMLElement
-  const yellowPupilR = document.getElementById('yellow-pupil-r') as HTMLElement
-  const yellowMouth = document.getElementById('yellow-mouth') as HTMLElement
-
-  yellowEyes.style.left = 52 + yellowPos.faceX + 'px'
-  yellowEyes.style.top = 40 + yellowPos.faceY + 'px'
-  const yo = calcPupilOffset(yellowPupilL, 5)
-  yellowPupilL.style.transform = `translate(${yo.x}px, ${yo.y}px)`
-  yellowPupilR.style.transform = `translate(${yo.x}px, ${yo.y}px)`
-  yellowMouth.style.left = 40 + yellowPos.faceX + 'px'
-  yellowMouth.style.top = 88 + yellowPos.faceY + 'px'
-  yellowMouth.style.transform = 'rotate(0deg)'
 }
 </script>
 
