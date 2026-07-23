@@ -8,7 +8,7 @@ export interface ApiResult<T = any> {
 
 
 const http = axios.create({
-  baseURL: "https://clockout-backend-production.up.railway.app",
+  baseURL: "https://clockout-backend-production.up.railway.app/api",
   timeout: 10000,
   transformResponse: [(data: string) => {
     try {
