@@ -6,10 +6,9 @@ export interface ApiResult<T = any> {
   data: T
 }
 
-const baseURL = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || '/api'
 
 const http = axios.create({
-  baseURL,
+  baseURL: "https://clockout-backend-production.up.railway.app",
   timeout: 10000,
   transformResponse: [(data: string) => {
     try {
