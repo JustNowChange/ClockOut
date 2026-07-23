@@ -1,4 +1,4 @@
-import axios, { AxiosRequestConfig, InternalAxiosRequestConfig, AxiosResponse } from 'axios'
+import axios, { InternalAxiosRequestConfig, AxiosResponse } from 'axios'
 
 export interface ApiResult<T = any> {
   code: number
@@ -6,8 +6,10 @@ export interface ApiResult<T = any> {
   data: T
 }
 
+const baseURL = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || '/api'
+
 const http = axios.create({
-  baseURL: '/api',
+  baseURL,
   timeout: 10000,
   transformResponse: [(data: string) => {
     try {
