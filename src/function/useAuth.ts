@@ -1,11 +1,10 @@
 import { ref, computed } from 'vue'
 import { login as loginApi, logout as logoutApi, getUserInfo } from '../api/auth'
-import { setToken, setRefreshToken, removeToken, getToken } from '../utils/http'
+import { setToken, removeToken, getToken } from '../utils/http'
 
 export interface UserInfo {
   id: number
   username: string
-  email: string
 }
 
 export interface AuthResult {
@@ -27,8 +26,8 @@ export function useAuth() {
   }
 
   function getErrorMessage(error: any): string {
-    if (error?.response?.data?.message) {
-      return error.response.data.message
+    if (error?.response?.data?.msg) {
+      return error.response.data.msg
     }
     if (error?.message) {
       return error.message
@@ -54,15 +53,17 @@ export function useAuth() {
     try {
       const response = await loginApi({ username, password })
       
-      if (response.code === 200 && response.data) {
+      if (response.code === 1 && response.data) {
         setToken(response.data.token)
-        setRefreshToken(response.data.refreshToken)
         isAuthenticated.value = true
-        user.value = response.data.user
+        user.value = {
+          id: response.data.id,
+          username: response.data.username
+        }
         return { success: true, data: response.data }
       } else {
-        error.value = response.message || '登录失败'
-        return { success: false, message: response.message || '登录失败' }
+        error.value = response.msg || '登录失败'
+        return { success: false, message: response.msg || '登录失败' }
       }
     } catch (err: any) {
       const message = getErrorMessage(err)
@@ -96,14 +97,14 @@ export function useAuth() {
     error.value = null
     try {
       const response = await getUserInfo()
-      if (response.code === 200) {
+      if (response.code === 1) {
         isAuthenticated.value = true
         user.value = response.data
         return true
       } else {
         removeToken()
         isAuthenticated.value = false
-        error.value = response.message || '认证失败'
+        error.value = response.msg || '认证失败'
         return false
       }
     } catch (err: any) {
