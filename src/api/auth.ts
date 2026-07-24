@@ -11,6 +11,20 @@ export interface LoginRequest {
   password: string
 }
 
+export interface RegisterResponse {
+  id: number
+  username: string
+}
+
+export interface RegisterRequest {
+  username: string
+  password: string
+}
+
 export function login(data: LoginRequest): Promise<ApiResult<LoginResponse>> {
   return http.post('/auth/login', data).then(res => res.data)
+}
+
+export function register(data: RegisterRequest): Promise<ApiResult<RegisterResponse>> {
+  return http.post('/auth/register', data).then(res => res.data)
 }

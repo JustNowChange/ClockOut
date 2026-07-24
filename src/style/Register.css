@@ -1,0 +1,414 @@
+/* ============ REGISTER PAGE (INTRO ANIMATION) ============ */
+.register-page {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  background: #000;
+  overflow: hidden;
+}
+
+/* ============ INTRO SCREEN ============ */
+.intro-screen {
+  overflow: hidden;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  cursor: pointer;
+  transition: opacity 0.6s ease-out, transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), border-radius 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  z-index: 100;
+}
+
+.intro-screen.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Top-left status */
+.top-left-status {
+  position: absolute;
+  top: 40px;
+  left: 40px;
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 2px;
+  opacity: 0;
+  animation: fade-in 0.5s ease-out 0.5s forwards;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Loading Circle Container */
+.enter-circle {
+  position: relative;
+  width: 180px;
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.enter-circle.loaded {
+  transform: scale(0.85);
+}
+
+/* Step 1: Spinning dashed ring */
+.ring-spin {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 1px dashed rgba(255, 255, 255, 0.3);
+  opacity: 0;
+  animation: spin-ring 1s linear;
+}
+
+.ring-spin.visible {
+  opacity: 1;
+}
+
+@keyframes spin-ring {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Step 2: Solid ring outline */
+.ring-outline {
+  position: absolute;
+  width: 130%;
+  height: 130%;
+  border-radius: 50%;
+  border: 2px solid rgba(157, 156, 156, 0.15);
+  opacity: 0;
+  transition: all 0.3s ease;
+  transform: scale(0.9);
+}
+
+.ring-outline.visible {
+  opacity: 1;
+}
+
+.enter-circle:hover .ring-outline {
+  transform: scale(1.3);
+}
+
+/* Step 3: Progress ring - outside ring-outline */
+.ring-progress {
+  position: absolute;
+  width: 115%;
+  height: 115%;
+  color: #b6a2a2;
+  border-radius: 50%;
+  opacity: 0;
+  transition: all 0.2s ease;
+}
+
+.ring-progress.visible {
+  opacity: 1;
+}
+
+.enter-circle:hover .ring-progress {
+  transform: scale(0.9);
+}
+
+.progress-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.progress-circle {
+  stroke-dasharray: 283;
+  stroke-dashoffset: 283;
+  transform-origin: center;
+  transform: rotate(-90deg);
+  transition: stroke-dashoffset 0.05s linear;
+}
+
+/* Center content */
+.center-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: opacity 0.3s ease;
+}
+
+.center-content.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Logo */
+.logo {
+  position: absolute;
+  font-size: 32px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  opacity: 0;
+  transform: scale(0.8);
+  transition: all 0.5s ease;
+  pointer-events: none;
+}
+
+.logo.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.logo span {
+  letter-spacing: 2px;
+}
+
+/* Final text - blink every 3 seconds */
+.enter-text {
+  position: absolute;
+  font-size: 20px;
+  font-weight: 300;
+  color: #fff;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  text-align: center;
+  white-space: nowrap;
+  pointer-events: none;
+  transform: scale(0.8);
+}
+
+.enter-text.blink {
+  opacity: 1;
+  animation: blink-text 3s ease-in-out infinite;
+}
+
+@keyframes blink-text {
+  0%, 85%, 100% {
+    opacity: 1;
+  }
+  90%, 95% {
+    opacity: 0.3;
+  }
+}
+
+/* Transition text: REGISTER ACCESS */
+.transition-text {
+  position: absolute;
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.8);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  opacity: 0;
+  transform: scale(0.5) rotateY(90deg);
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  pointer-events: none;
+  z-index: 20;
+}
+
+.transition-text.visible {
+  opacity: 1;
+  transform: scale(1) rotateY(0deg);
+}
+
+/* Outer dashed ring - show after loading complete */
+.ring-outer {
+  position: absolute;
+  width: 120%;
+  height: 120%;
+  border-radius: 50%;
+  border: 1px dashed rgba(255, 255, 255, 0);
+  transition: all 0.3s ease;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.ring-outer.visible {
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.enter-circle:hover .ring-outer {
+  transform: scale(0.2);
+}
+
+/* Footer Info */
+.footer-info {
+  position: absolute;
+  bottom: 40px;
+  left: 40px;
+  right: 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.footer-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.footer-item.visible {
+  animation: slide-up 0.8s ease-out forwards;
+}
+
+.footer-item.left {
+  animation-delay: 0.2s;
+}
+
+.footer-item.center {
+  animation-delay: 0.4s;
+}
+
+.footer-item.right {
+  align-items: flex-end;
+  animation-delay: 0.6s;
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.footer-item .brand {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.8);
+  letter-spacing: 2px;
+}
+
+.footer-item .tagline {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.4);
+  letter-spacing: 1px;
+}
+
+.footer-item .label {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.3);
+  letter-spacing: 1px;
+}
+
+.footer-item .value {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.6);
+  letter-spacing: 1px;
+}
+
+/* Wipe Line Animation - white light beam at curtain edge */
+.wipe-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2px;
+  height: 100%;
+  background: #fff;
+  z-index: 92;
+  opacity: 0;
+}
+
+.wipe-line.active {
+  animation: wipe-move 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+@keyframes wipe-move {
+  0% {
+    left: 0%;
+    width: 2px;
+    opacity: 1;
+    filter: blur(4px);
+  }
+  50% {
+    left: 50%;
+    width: 50px;
+    opacity: 1;
+    filter: blur(4px);
+    box-shadow: 0 0 8px #ffffff, 0 0 16px #ffffff, 0 0 32px #ffffff;
+  }
+  100% {
+    left: 100%;
+    width: 2px;
+    opacity: 1;
+    filter: blur(4px);
+  }
+}
+
+/* Wipe Mask - curtain effect from left to right */
+.wipe-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0%;
+  height: 100%;
+  background: rgb(0, 0, 0);
+  z-index: 90;
+  opacity: 0;
+}
+
+.wipe-mask.active {
+  animation: mask-move 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+@keyframes mask-move {
+  0% {
+    width: 0%;
+    opacity: 1;
+  }
+  100% {
+    width: 100%;
+    opacity: 1;
+  }
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .top-left-status {
+    top: 20px;
+    left: 20px;
+    font-size: 10px;
+  }
+  
+  .footer-info {
+    left: 20px;
+    right: 20px;
+    bottom: 20px;
+  }
+  
+  .enter-circle {
+    width: 180px;
+    height: 180px;
+  }
+  
+  .enter-text {
+    font-size: 16px;
+    letter-spacing: 4px;
+  }
+  
+  .logo {
+    font-size: 24px;
+  }
+}

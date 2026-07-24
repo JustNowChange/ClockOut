@@ -34,7 +34,6 @@
   width: 28px;
   height: 28px;
   background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(8px);
   padding: 4px;
   border-radius: 6px;
 }
@@ -208,6 +207,28 @@
 }
 
 .forgot-link:hover {
+  opacity: 0.8;
+}
+
+/* Form footer */
+.form-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 24px;
+  font-size: 13px;
+  color: #666;
+}
+
+.form-footer router-link {
+  color: #5b21b6;
+  text-decoration: none;
+  font-weight: 500;
+  transition: opacity 0.2s;
+}
+
+.form-footer router-link:hover {
   opacity: 0.8;
 }
 
