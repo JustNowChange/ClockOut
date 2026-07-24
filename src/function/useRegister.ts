@@ -4,7 +4,7 @@ import useAuth from './useAuth'
 
 export function useRegister() {
   const router = useRouter()
-  const { register: authRegister, loading: authLoading } = useAuth()
+  const { register: authRegister} = useAuth()
   
   const username = ref('')
   const password = ref('')
