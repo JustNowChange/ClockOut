@@ -1,5 +1,5 @@
 import { ref, computed } from 'vue'
-import { login as loginApi } from '../api/auth'
+import { login as loginApi, register as registerApi } from '../api/auth'
 import { setToken, removeToken, getToken } from '../utils/http'
 
 export interface UserInfo {
@@ -74,6 +74,28 @@ export function useAuth() {
     }
   }
 
+  async function register(username: string, password: string): Promise<AuthResult> {
+    loading.value = true
+    error.value = null
+    
+    try {
+      const response = await registerApi({ username, password })
+      
+      if (response.code === 1 && response.data) {
+        return { success: true, data: response.data }
+      } else {
+        error.value = response.msg || '注册失败'
+        return { success: false, message: response.msg || '注册失败' }
+      }
+    } catch (err: any) {
+      const message = getErrorMessage(err)
+      error.value = message
+      return { success: false, message }
+    } finally {
+      loading.value = false
+    }
+  }
+
   function logout(): void {
     removeToken()
     isAuthenticated.value = false
@@ -98,6 +120,7 @@ export function useAuth() {
     error,
     token,
     login,
+    register,
     logout,
     checkAuth,
     clearError

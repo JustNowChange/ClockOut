@@ -116,6 +116,11 @@
             <a href="#" class="forgot-link">忘记密码？</a>
           </div>
 
+          <div class="form-footer">
+            <span>还没有账号？</span>
+            <router-link to="/register">立即注册</router-link>
+          </div>
+
           <div class="error-msg" v-if="errorMsg">{{ errorMsg }}</div>
 
           <button type="submit" class="btn-login" :disabled="isLoading">
