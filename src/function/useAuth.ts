@@ -1,10 +1,11 @@
 import { ref, computed } from 'vue'
-import { login as loginApi, register as registerApi } from '../api/auth'
-import { setToken, removeToken, getToken } from '../utils/http'
+import { login as loginApi, register as registerApi, getUserInfo as getUserInfoApi } from '../api/auth'
+import { setToken, removeToken, getToken, setUserId, removeUserId, getUserId } from '../utils/http'
 
 export interface UserInfo {
   id: number
   username: string
+  status: number  // 在线状态：0-离线，1-在线
 }
 
 export interface AuthResult {
@@ -55,10 +56,12 @@ export function useAuth() {
       
       if (response.code === 1 && response.data) {
         setToken(response.data.token)
+        setUserId(response.data.id)  // 保存 userId 到 localStorage
         isAuthenticated.value = true
         user.value = {
           id: response.data.id,
-          username: response.data.username
+          username: response.data.username,
+          status: 1  // 登录成功默认在线
         }
         return { success: true, data: response.data }
       } else {
@@ -98,6 +101,7 @@ export function useAuth() {
 
   function logout(): void {
     removeToken()
+    removeUserId()  // 清除 userId
     isAuthenticated.value = false
     user.value = null
     error.value = null
@@ -113,6 +117,28 @@ export function useAuth() {
     return false
   }
 
+  async function fetchUserInfo(): Promise<void> {
+    if (!checkAuth()) return
+    
+    // 优先使用响应式数据中的 id，其次从 localStorage 获取
+    const userId = user.value?.id || getUserId()
+    if (!userId) return
+    
+    try {
+      const response = await getUserInfoApi(userId)
+      
+      if (response.code === 1 && response.data) {
+        user.value = {
+          id: response.data.id,
+          username: response.data.name,  // 后端返回的是 name
+          status: response.data.status
+        }
+      }
+    } catch (err: any) {
+      console.error('Failed to fetch user info:', err)
+    }
+  }
+
   return {
     isAuthenticated,
     user,
@@ -123,6 +149,7 @@ export function useAuth() {
     register,
     logout,
     checkAuth,
+    fetchUserInfo,
     clearError
   }
 }

@@ -66,6 +66,147 @@
   color: #333;
 }
 
+/* User Avatar Wrapper - positioned at bottom center */
+.user-avatar-wrapper {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+}
+
+.user-avatar {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.avatar-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6c3ff5 0%, #5b21b6 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(108, 63, 245, 0.3);
+}
+
+.user-avatar:hover .avatar-circle {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(108, 63, 245, 0.5);
+}
+
+.avatar-circle span {
+  letter-spacing: 0;
+}
+
+/* Avatar Panel - B站 style dropdown */
+.avatar-panel {
+  position: absolute;
+  bottom: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 240px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  padding: 16px;
+}
+
+.avatar-panel.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.panel-avatar {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.panel-avatar-circle {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6c3ff5 0%, #5b21b6 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 22px;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(108, 63, 245, 0.3);
+}
+
+.panel-info {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.panel-username {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a2e;
+  margin-bottom: 4px;
+}
+
+.panel-status {
+  font-size: 12px;
+  color: #10b981;
+}
+
+.panel-divider {
+  height: 1px;
+  background: rgba(0, 0, 0, 0.08);
+  margin-bottom: 12px;
+}
+
+.panel-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.menu-item:hover {
+  background: rgba(108, 63, 245, 0.08);
+  color: #6c3ff5;
+}
+
+.menu-item.logout {
+  color: #ff4757;
+}
+
+.menu-item.logout:hover {
+  background: rgba(255, 71, 87, 0.1);
+}
+
+.menu-item span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 /* Decorative blurs */
 .left-panel::after {
   content: "";

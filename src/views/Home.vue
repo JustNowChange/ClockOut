@@ -58,6 +58,42 @@
         <a href="#">Terms of Service</a>
         <a href="#">Contact</a>
       </div>
+      
+      <!-- User Avatar with dropdown -->
+      <div class="user-avatar-wrapper" @mouseenter="showAvatarPanel = true" @mouseleave="showAvatarPanel = false">
+        <div class="user-avatar">
+          <div class="avatar-circle">
+            <span>{{ user?.username ? user.username.charAt(0).toUpperCase() : 'U' }}</span>
+          </div>
+        </div>
+        
+        <!-- User Panel -->
+        <div class="avatar-panel" :class="{ 'visible': showAvatarPanel }">
+          <div class="panel-avatar">
+            <div class="panel-avatar-circle">
+              <span>{{ user?.username ? user.username.charAt(0).toUpperCase() : 'U' }}</span>
+            </div>
+          </div>
+          <div class="panel-info">
+            <div class="panel-username">{{ user?.username || 'User' }}</div>
+            <div class="panel-status" :style="{ color: getStatusColor(user?.status || 0) }">
+              {{ getStatusText(user?.status || 0) }}
+            </div>
+          </div>
+          <div class="panel-divider"></div>
+          <div class="panel-menu">
+            <div class="menu-item">
+              <span>个人中心</span>
+            </div>
+            <div class="menu-item">
+              <span>设置</span>
+            </div>
+            <div class="menu-item logout">
+              <span>退出登录</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Right Panel -->
@@ -95,19 +131,39 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import useClock from '../function/useClock'
 import useStudyDays from '../function/useStudyDays'
 import useCharacters from '../function/useCharacters'
+import { useAuth } from '../function/useAuth'
 
 const router = useRouter()
 const { currentTime } = useClock()
 const { studyDays } = useStudyDays()
+const { user, fetchUserInfo } = useAuth()
 useCharacters()
+
+const username = ref(user.value?.username || '')
+const showAvatarPanel = ref(false)
+
+// 获取状态文字
+const getStatusText = (status: number) => {
+  return status === 1 ? '在线' : '离线'
+}
+
+// 获取状态颜色
+const getStatusColor = (status: number) => {
+  return status === 1 ? '#10b981' : '#9ca3af'
+}
 
 function goToStudy(day: any) {
   router.push(`/clock?dayId=${day.id}`)
 }
+
+onMounted(() => {
+  fetchUserInfo()
+})
 </script>
 
 <style>
