@@ -144,7 +144,6 @@ const { studyDays } = useStudyDays()
 const { user, fetchUserInfo } = useAuth()
 useCharacters()
 
-const username = ref(user.value?.username || '')
 const showAvatarPanel = ref(false)
 
 // 获取状态文字
