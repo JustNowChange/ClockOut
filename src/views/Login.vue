@@ -73,9 +73,11 @@
 
         <form @submit.prevent="handleLogin">
           <div class="form-group">
-            <label>账号</label>
+            <label for="username">账号</label>
             <div class="input-wrapper">
               <input 
+                id="username"
+                name="username"
                 v-model="username" 
                 type="text" 
                 placeholder="请输入账号" 
@@ -86,9 +88,11 @@
           </div>
 
           <div class="form-group">
-            <label>密码</label>
+            <label for="password">密码</label>
             <div class="input-wrapper">
               <input 
+                id="password"
+                name="password"
                 v-model="password" 
                 :type="showPassword ? 'text' : 'password'" 
                 placeholder="请输入密码"

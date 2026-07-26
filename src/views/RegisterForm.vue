@@ -68,7 +68,7 @@
 
       <div class="form-footer" :class="{ 'fade-in': isContentVisible }">
         <span>已有账号？</span>
-        <router-link to="/">立即登录</router-link>
+        <a href="#" class="login-link" @click.prevent="goToLogin">立即登录</a>
       </div>
     </div>
   </div>
@@ -76,8 +76,10 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import useRegister from '../function/useRegister'
 
+const router = useRouter()
 const isScaled = ref(false)
 const isContentVisible = ref(false)
 
@@ -93,6 +95,13 @@ const {
   togglePassword,
   toggleConfirmPassword
 } = useRegister()
+
+function goToLogin() {
+  router.push('/')
+  setTimeout(() => {
+    window.location.reload()
+  }, 100)
+}
 
 onMounted(() => {
   // Step 1: Start scale animation (shrink -> expand)
