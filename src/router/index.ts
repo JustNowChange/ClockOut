@@ -25,6 +25,11 @@ const routes = [
     path: '/clock',
     name: 'Clock',
     component: () => import('../views/Clock.vue')
+  },
+  {
+    path: '/resume',
+    name: 'Resume',
+    component: () => import('../views/Resume.vue')
   }
 ]
 

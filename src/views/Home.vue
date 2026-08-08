@@ -2,95 +2,86 @@
   <div class="login-page">
     <!-- Left Panel -->
     <div class="left-panel">
-      <div class="logo">
-        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-          <path d="M12 2L15 9H9L12 2Z" />
-          <path d="M12 22L9 15H15L12 22Z" />
-          <path d="M2 12L9 9V15L2 12Z" />
-          <path d="M22 12L15 15V9L22 12Z" />
-        </svg>
-        <span>ClockOut</span>
-      </div>
-      <div class="characters-wrapper">
-        <div class="characters-scene" id="characters-scene">
-          <!-- Purple character -->
-          <div class="character char-purple" id="char-purple">
-            <div class="eyes" id="purple-eyes" style="left: 45px; top: 40px; gap: 28px">
-              <div class="eyeball" id="purple-eye-l" style="width: 18px; height: 18px">
-                <div class="pupil" id="purple-pupil-l" style="width: 7px; height: 7px"></div>
-              </div>
-              <div class="eyeball" id="purple-eye-r" style="width: 18px; height: 18px">
-                <div class="pupil" id="purple-pupil-r" style="width: 7px; height: 7px"></div>
-              </div>
+      <!-- ============ 他人简历列表 ============ -->
+      <div class="resume-list-section">
+        <div class="section-header">
+          <h2>他人简历</h2>
+          <span class="list-count">{{ resumeList.length }} 份简历</span>
+        </div>
+
+        <div class="resume-list" :class="{ 'loading': listLoading }">
+          <div class="resume-list-item" v-for="item in resumeList" :key="item.id" @click="goToReadonlyResume(item.id)">
+            <div class="item-avatar">
+              <span>{{ item.name.charAt(0) }}</span>
             </div>
-          </div>
-          <!-- Black character -->
-          <div class="character char-black" id="char-black">
-            <div class="eyes" id="black-eyes" style="left: 26px; top: 32px; gap: 20px">
-              <div class="eyeball" id="black-eye-l" style="width: 16px; height: 16px">
-                <div class="pupil" id="black-pupil-l" style="width: 6px; height: 6px"></div>
-              </div>
-              <div class="eyeball" id="black-eye-r" style="width: 16px; height: 16px">
-                <div class="pupil" id="black-pupil-r" style="width: 6px; height: 6px"></div>
+            <div class="item-info">
+              <h4 class="item-name">{{ item.name }}</h4>
+              <p class="item-title">{{ item.title }}</p>
+              <div class="item-meta">
+                <span>{{ item.education }}</span>
+                <span class="meta-dot">·</span>
+                <span>{{ item.projectCount }}个项目</span>
               </div>
             </div>
-          </div>
-          <!-- Orange character -->
-          <div class="character char-orange" id="char-orange">
-            <div class="eyes" id="orange-eyes" style="left: 82px; top: 90px; gap: 28px">
-              <div class="bare-pupil" id="orange-pupil-l"></div>
-              <div class="bare-pupil" id="orange-pupil-r"></div>
+            <div class="item-view-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
             </div>
-            <div class="orange-mouth" id="orange-mouth" style="left: 90px; top: 120px"></div>
-          </div>
-          <!-- Yellow character -->
-          <div class="character char-yellow" id="char-yellow">
-            <div class="eyes" id="yellow-eyes" style="left: 52px; top: 40px; gap: 20px">
-              <div class="bare-pupil" id="yellow-pupil-l"></div>
-              <div class="bare-pupil" id="yellow-pupil-r"></div>
-            </div>
-            <div class="yellow-mouth" id="yellow-mouth" style="left: 40px; top: 88px"></div>
           </div>
         </div>
-      </div>
-      <div class="footer-links">
-        <a href="#">Privacy Policy</a>
-        <a href="#">Terms of Service</a>
-        <a href="#">Contact</a>
-      </div>
-      
-      <!-- User Avatar with dropdown -->
-      <div class="user-avatar-wrapper" @mouseenter="showAvatarPanel = true" @mouseleave="showAvatarPanel = false">
-        <div class="user-avatar">
-          <div class="avatar-circle">
-            <span>{{ user?.username ? user.username.charAt(0).toUpperCase() : 'U' }}</span>
-          </div>
+
+        <div class="list-empty" v-if="!listLoading && resumeList.length === 0">
+          <p>暂无他人简历</p>
         </div>
-        
-        <!-- User Panel -->
-        <div class="avatar-panel" :class="{ 'visible': showAvatarPanel }">
-          <div class="panel-avatar">
-            <div class="panel-avatar-circle">
-              <span>{{ user?.username ? user.username.charAt(0).toUpperCase() : 'U' }}</span>
+      </div>
+
+      <!-- ============ 我的简历 ============ -->
+      <div class="my-resume-section">
+        <div class="resume-preview-card" @click="goToResume">
+          <div class="preview-header">
+            <div class="preview-avatar">
+              <span>{{ resume.core.name.charAt(0) }}</span>
+            </div>
+            <div class="preview-info">
+              <h3 class="preview-name">{{ resume.core.name }}</h3>
+              <p class="preview-title">{{ resume.core.title }}</p>
+            </div>
+            <div class="preview-edit-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+              </svg>
             </div>
           </div>
-          <div class="panel-info">
-            <div class="panel-username">{{ user?.username || 'User' }}</div>
-            <div class="panel-status" :style="{ color: getStatusColor(user?.status || 0) }">
-              {{ getStatusText(user?.status || 0) }}
+
+          <div class="preview-divider"></div>
+
+          <div class="preview-sections">
+            <div class="preview-section">
+              <span class="section-label">教育</span>
+              <span class="section-value">{{ educationSchool }}</span>
+            </div>
+            <div class="preview-section">
+              <span class="section-label">工作</span>
+              <span class="section-value">{{ experienceSummary }}</span>
+            </div>
+            <div class="preview-section">
+              <span class="section-label">项目</span>
+              <span class="section-value">{{ projectCount }} 个项目</span>
             </div>
           </div>
-          <div class="panel-divider"></div>
-          <div class="panel-menu">
-            <div class="menu-item">
-              <span>个人中心</span>
-            </div>
-            <div class="menu-item">
-              <span>设置</span>
-            </div>
-            <div class="menu-item logout">
-              <span>退出登录</span>
-            </div>
+
+          <div class="preview-skills">
+            <span class="skill-tag" v-for="(t, i) in visibleTags" :key="i">{{ t }}</span>
+          </div>
+
+          <div class="preview-footer">
+            <span class="preview-readonly-tag">我的简历</span>
+            <span class="preview-edit-hint">点击前往编辑</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
           </div>
         </div>
       </div>
@@ -127,41 +118,109 @@
         </div>
       </div>
     </div>
+
+    <!-- User Avatar at bottom center -->
+    <div class="user-avatar-wrapper" @mouseenter="showAvatarPanel = true" @mouseleave="showAvatarPanel = false">
+      <div class="user-avatar" @click="goToResume">
+        <div class="avatar-circle">
+          <span>{{ resume.core.name.charAt(0) }}</span>
+        </div>
+      </div>
+
+      <!-- User Panel -->
+      <div class="avatar-panel" :class="{ 'visible': showAvatarPanel }">
+        <div class="panel-avatar">
+          <div class="panel-avatar-circle">
+            <span>{{ resume.core.name.charAt(0) }}</span>
+          </div>
+        </div>
+        <div class="panel-info">
+          <div class="panel-username">{{ resume.core.name }}</div>
+          <div class="panel-title">{{ resume.core.title }}</div>
+        </div>
+        <div class="panel-divider"></div>
+        <div class="panel-menu">
+          <div class="menu-item" @click="goToResume">
+            <span>我的简历</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </div>
+          <div class="menu-item logout" @click="handleLogout">
+            <span>退出登录</span>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import useClock from '../function/useClock'
 import useStudyDays from '../function/useStudyDays'
-import useCharacters from '../function/useCharacters'
 import { useAuth } from '../function/useAuth'
+import useResume from '../function/useResume'
 
 const router = useRouter()
 const { currentTime } = useClock()
 const { studyDays } = useStudyDays()
-const { user, fetchUserInfo } = useAuth()
-useCharacters()
+const { user, fetchUserInfo, logout } = useAuth()
+const { resume, findModuleByType, resumeList, listLoading, fetchResumeList } = useResume()
 
 const showAvatarPanel = ref(false)
 
-// 获取状态文字
-const getStatusText = (status: number) => {
-  return status === 1 ? '在线' : '离线'
+// 显示的技能标签（取前6个）
+const visibleTags = computed(() => {
+  const tags: string[] = []
+  const skillModule = findModuleByType('skill')
+  skillModule?.content.forEach((s: any) => {
+    if (s.items) tags.push(...s.items)
+  })
+  return tags.slice(0, 6)
+})
+
+// 教育信息预览
+const educationSchool = computed(() => {
+  const eduModule = findModuleByType('education')
+  return eduModule?.content[0]?.school || '未填写'
+})
+
+// 工作信息预览
+const experienceSummary = computed(() => {
+  const expModule = findModuleByType('experience')
+  const first = expModule?.content[0]
+  if (!first) return '未填写'
+  return `${first.company}${first.position ? ' · ' + first.position : ''}`
+})
+
+// 项目数量
+const projectCount = computed(() => {
+  const projModule = findModuleByType('project')
+  return projModule?.content.length || 0
+})
+
+function goToResume() {
+  router.push('/resume')
 }
 
-// 获取状态颜色
-const getStatusColor = (status: number) => {
-  return status === 1 ? '#10b981' : '#9ca3af'
+function goToReadonlyResume(id: number) {
+  router.push({ path: '/resume', query: { mode: 'readonly', id: String(id) } })
 }
 
 function goToStudy(day: any) {
   router.push(`/clock?dayId=${day.id}`)
 }
 
+function handleLogout() {
+  logout()
+  router.push('/')
+}
+
 onMounted(() => {
   fetchUserInfo()
+  fetchResumeList()
 })
 </script>
 
