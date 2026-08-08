@@ -773,3 +773,228 @@
     display: none;
   }
 }
+
+/* ============ 入场动画 ============ */
+
+/* 初始状态:左右面板在屏幕外 */
+.left-panel {
+  opacity: 0;
+  transform: translateX(-80px);
+}
+
+.right-panel {
+  opacity: 0;
+  transform: translateX(80px);
+}
+
+/* 左侧滑入 */
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-900px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* 右侧滑入 */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(900px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* 触发动画 */
+.left-panel.animate-in {
+  animation: slideInLeft 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.right-panel.animate-in {
+  animation: slideInRight 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* 列表项初始状态：隐藏，动画由内联 style 控制触发 */
+.resume-list-item {
+  opacity: 0;
+  transform: translateY(12px);
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 打卡卡片初始状态：隐藏，动画由内联 style 控制触发 */
+.grid-item {
+  opacity: 0;
+  transform: translateY(12px);
+}
+
+/* ============ Hacker Loading Overlay ============ */
+.expand-overlay {
+  overflow: hidden;
+}
+
+.matrix-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.5;
+}
+
+.hacker-content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.hacker-content.hacker-visible {
+  opacity: 1;
+}
+
+.hacker-terminal {
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  line-height: 1.8;
+  color: #1a1a2e;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(26, 26, 46, 0.15);
+  border-radius: 8px;
+  padding: 20px 28px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  min-width: 340px;
+  max-width: 90vw;
+  transform: translateY(10px);
+  animation: terminalSlideIn 0.4s ease forwards 0.1s both;
+}
+
+@keyframes terminalSlideIn {
+  to { transform: translateY(0); }
+}
+
+.terminal-line {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.terminal-line .prompt {
+  color: #2d6cdf;
+}
+
+.terminal-line .cmd {
+  color: #1a1a2e;
+}
+
+.terminal-line .cursor {
+  display: inline-block;
+  width: 8px;
+  background: #2d6cdf;
+  animation: blink 0.5s step-end infinite;
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+.terminal-output {
+  font-size: 12px;
+  color: #4a4a6a;
+  line-height: 1.7;
+  opacity: 0;
+  animation: typeIn 0.2s ease forwards;
+}
+
+@keyframes typeIn {
+  to { opacity: 1; }
+}
+
+.terminal-output .glitch {
+  display: inline-block;
+  animation: glitch 0.3s ease;
+}
+
+@keyframes glitch {
+  0% { transform: translateX(0); filter: hue-rotate(0deg); }
+  20% { transform: translateX(-3px); filter: hue-rotate(90deg); }
+  40% { transform: translateX(3px); filter: hue-rotate(180deg); }
+  60% { transform: translateX(-2px); filter: hue-rotate(270deg); }
+  80% { transform: translateX(2px); filter: hue-rotate(360deg); }
+  100% { transform: translateX(0); filter: hue-rotate(0deg); }
+}
+
+.hacker-status {
+  margin-top: 24px;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  color: #4a4a6a;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  letter-spacing: 0.5px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #2d6cdf;
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.3); }
+}
+
+/* Skip hint */
+.skip-hint {
+  margin-top: 32px;
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  color: rgba(74, 74, 106, 0.5);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  letter-spacing: 0.5px;
+}
+
+.skip-key {
+  display: inline-block;
+  padding: 3px 8px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(26, 26, 46, 0.2);
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 11px;
+}
+
+.skip-plus {
+  font-weight: 700;
+}
+
+.skip-label {
+  margin-left: 6px;
+}

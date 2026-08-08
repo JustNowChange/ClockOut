@@ -27,9 +27,108 @@
   max-width: 900px;
   margin: 0 auto;
   background: #fff;
-  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 20px rgba(105, 75, 75, 0.08);
   padding: 60px 70px;
   border-radius: 4px;
+
+  /* 入场动画:先隐藏,等幕布揭开后再淡入 */
+  opacity: 0;
+  transform: scale(0.96);
+  transition: none;
+}
+
+.resume-container.open-anim {
+  animation: resumeFadeIn 0.8s ease 0.7s forwards;
+}
+
+@keyframes resumeFadeIn {
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ============ 幕布揭开动画 ============ */
+.resume-page {
+  position: relative;
+}
+
+/* 左右幕布初始状态:从中间合拢,覆盖整个页面 */
+.resume-page::before,
+.resume-page::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  height: 100vh;
+  width: 50%;
+  z-index: 9999;
+  background: #2e2e2e;
+  transition: transform 1.4s cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+.resume-page::before {
+  left: 0;
+  transform: translateX(0);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.resume-page::after {
+  right: 0;
+  transform: translateX(0);
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* 揭开:左幕布向左,右幕布向右 */
+.resume-page.curtain-open::before {
+  transform: translateX(-100%);
+}
+
+.resume-page.curtain-open::after {
+  transform: translateX(100%);
+}
+
+/* ============ 工具栏按钮爆炸出场动画 ============ */
+.resume-toolbar .toolbar-btn {
+  opacity: 0;
+  transform: scale(0.3);
+}
+
+.resume-page.curtain-open .resume-toolbar .toolbar-btn {
+  animation: btnBurstIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+
+.resume-page.curtain-open .resume-toolbar .toolbar-btn:nth-child(1) {
+  animation-delay: 0.4s;
+}
+.resume-page.curtain-open .resume-toolbar .toolbar-btn:nth-child(2) {
+  animation-delay: 0.5s;
+}
+.resume-page.curtain-open .resume-toolbar .toolbar-btn:nth-child(3) {
+  animation-delay: 0.6s;
+}
+.resume-page.curtain-open .resume-toolbar .toolbar-btn:nth-child(4) {
+  animation-delay: 0.7s;
+}
+.resume-page.curtain-open .resume-toolbar .toolbar-btn:nth-child(5) {
+  animation-delay: 0.8s;
+}
+
+@keyframes btnBurstIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 /* ============ EDIT MODE STYLES ============ */

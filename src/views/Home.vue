@@ -1,7 +1,7 @@
 <template>
   <div class="login-page">
     <!-- Left Panel -->
-    <div class="left-panel">
+    <div class="left-panel" :class="{ 'animate-in': animated }">
       <!-- ============ 他人简历列表 ============ -->
       <div class="resume-list-section">
         <div class="section-header">
@@ -10,7 +10,11 @@
         </div>
 
         <div class="resume-list" :class="{ 'loading': listLoading }">
-          <div class="resume-list-item" v-for="item in resumeList" :key="item.id" @click="goToReadonlyResume(item.id)">
+          <div class="resume-list-item"
+            v-for="(item, idx) in resumeList"
+            :key="item.id"
+            :style="animated ? { animation: 'fadeInUp 0.8s ease forwards', animationDelay: (1.2 + idx * 0.12) + 's' } : {}"
+            @click="goToReadonlyResume(item.id)">
             <div class="item-avatar">
               <span>{{ item.name.charAt(0) }}</span>
             </div>
@@ -38,7 +42,11 @@
 
       <!-- ============ 我的简历 ============ -->
       <div class="my-resume-section">
-        <div class="resume-preview-card" @click="goToResume">
+        <div
+          ref="cardRef"
+          class="resume-preview-card"
+          @click="expandToResume"
+        >
           <div class="preview-header">
             <div class="preview-avatar">
               <span>{{ resume.core.name.charAt(0) }}</span>
@@ -88,7 +96,7 @@
     </div>
 
     <!-- Right Panel -->
-    <div class="right-panel">
+    <div class="right-panel" :class="{ 'animate-in': animated }">
       <div class="form-container">
         <div class="sparkle-icon">
           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -105,7 +113,11 @@
 
         <!-- Study Days List -->
         <div class="study-days-list">
-          <div class="grid-item" v-for="day in studyDays" :key="day.id" @click="goToStudy(day)">
+          <div class="grid-item"
+            v-for="(day, idx) in studyDays"
+            :key="day.id"
+            :style="animated ? { animation: 'fadeInUp 0.8s ease forwards', animationDelay: (1.2 + idx * 0.12) + 's' } : {}"
+            @click="goToStudy(day)">
             <div class="day-header">
               <p>{{ day.name }}</p>
               <span v-if="day.status === 1" class="check-icon">✓</span>
@@ -152,11 +164,50 @@
         </div>
       </div>
     </div>
+
+    <!-- Fullscreen expand overlay with hacker loading effect -->
+    <Teleport to="body">
+      <div
+        v-if="expandOverlay.visible"
+        class="expand-overlay"
+        :style="expandOverlayStyle"
+        @click="onOverlayClick"
+      >
+        <!-- Matrix rain canvas -->
+        <canvas ref="matrixCanvas" class="matrix-canvas"></canvas>
+
+        <!-- Hacker content overlay -->
+        <div class="hacker-content" :class="{ 'hacker-visible': hackerContentVisible }">
+          <div class="hacker-terminal">
+            <div class="terminal-line">
+              <span class="prompt">$</span>
+              <span class="cmd">access --profile {{ currentUser?.name || 'user' }}</span>
+              <span class="cursor">_</span>
+            </div>
+            <div class="terminal-output" v-for="(line, i) in hackerOutputLines" :key="i">
+              <span :class="{ 'glitch': line.glitch }">{{ line.text }}</span>
+            </div>
+          </div>
+
+          <div class="hacker-status">
+            <span class="status-dot"></span>
+            <span class="status-text">{{ hackerStatus }}</span>
+          </div>
+
+          <div class="skip-hint">
+            <span class="skip-key">Ctrl</span>
+            <span class="skip-plus">+</span>
+            <span class="skip-key">L</span>
+            <span class="skip-label">跳过加载</span>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, nextTick, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import useClock from '../function/useClock'
 import useStudyDays from '../function/useStudyDays'
@@ -170,6 +221,200 @@ const { user, fetchUserInfo, logout } = useAuth()
 const { resume, findModuleByType, resumeList, listLoading, fetchResumeList } = useResume()
 
 const showAvatarPanel = ref(false)
+const animated = ref(false)
+
+// 卡片放大过渡
+const cardRef = ref<HTMLElement | null>(null)
+const expandOverlay = reactive({ visible: false, expanded: false })
+const expandOverlayStyle = ref<Record<string, string>>({})
+let expandStarted = false
+
+function onOverlayClick() {
+  if (expandStarted) return
+  expandStarted = true
+  skipAnimation()
+}
+
+function skipAnimation() {
+  stopMatrixRain()
+  expandStarted = false
+  router.push('/resume')
+}
+
+function handleKeydown(e: KeyboardEvent) {
+  if (expandOverlay.visible && e.ctrlKey && (e.key === 'l' || e.key === 'L')) {
+    e.preventDefault()
+    skipAnimation()
+  }
+}
+
+// 清理定时器和事件监听
+function cleanupExpandTimers() {
+  // 移除监听
+  window.removeEventListener('keydown', handleKeydown)
+}
+
+// 黑客加载效果
+const matrixCanvas = ref<HTMLCanvasElement | null>(null)
+const hackerContentVisible = ref(false)
+const hackerStatus = ref('')
+const hackerOutputLines = ref<{ text: string; glitch?: boolean }[]>([])
+let matrixAnimId: number | null = null
+
+const currentUser = computed(() => user.value)
+
+const hackerSteps = [
+  { status: 'INITIALIZING KERNEL MODULE...', lines: [{ text: '[KERNEL] bootloader v4.2.1 ready', glitch: true }] },
+  { status: 'ESTABLISHING SECURE TUNNEL...', lines: [{ text: '[NET] TLS handshake completed', glitch: false }, { text: '[NET] Certificate verified (SHA-256)', glitch: false }, { text: '[NET] Session cipher: AES-GCM-256', glitch: true }] },
+  { status: 'AUTHENTICATING IDENTITY...', lines: [{ text: '[AUTH] Loading user credentials', glitch: false }, { text: '[AUTH] RSA-2048 decryption pass', glitch: true }, { text: '[AUTH] Biometric verification OK', glitch: false }] },
+  { status: 'DECRYPTING PROFILE DATA...', lines: [{ text: '[DECRYPT] Symmetric key derived', glitch: false }, { text: '[DECRYPT] AES-256-GCM decrypting...', glitch: true }, { text: '[DECRYPT] Integrity check PASSED', glitch: false }] },
+  { status: 'LOADING RESUME MODULES...', lines: [{ text: '[LOAD] education module......OK', glitch: false }, { text: '[LOAD] experience module....OK', glitch: false }, { text: '[LOAD] project module.......OK', glitch: true }, { text: '[LOAD] skill module.........OK', glitch: false }, { text: '[LOAD] contact module.......OK', glitch: false }] },
+  { status: 'VERIFYING INTEGRITY...', lines: [{ text: '[HASH] SHA-512 verification...', glitch: true }, { text: '[HASH] All modules intact', glitch: false }] },
+  { status: 'RENDERING FINAL OUTPUT...', lines: [{ text: '[RENDER] Compiling resume layout', glitch: false }, { text: '[RENDER] Resources: 82% ████░', glitch: true }] },
+  { status: 'ACCESS GRANTED ✔', lines: [{ text: '[ACCESS] Profile unlocked successfully', glitch: false }, { text: '[READY] Welcome back, ' + '', glitch: false }] }
+]
+
+function startMatrixRain() {
+  const canvas = matrixCanvas.value
+  if (!canvas) return
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return
+
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*<>/\\|[]{}()=_+-'
+  const fontSize = 14
+  let columns = 0
+  let drops: number[] = []
+
+  function resize() {
+    if (!canvas) return
+    canvas.width = window.innerWidth
+    canvas.height = window.innerHeight
+    columns = Math.floor(canvas.width / fontSize)
+    drops = new Array(columns).fill(0).map(() => Math.random() * canvas.height / fontSize)
+  }
+  resize()
+  window.addEventListener('resize', resize)
+
+  function draw() {
+    if (!ctx || !canvas) return
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.08)'
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+    ctx.fillStyle = '#1a1a2e'
+    ctx.font = fontSize + 'px monospace'
+
+    for (let i = 0; i < drops.length; i++) {
+      const char = chars[Math.floor(Math.random() * chars.length)]
+      const x = i * fontSize
+      const y = drops[i] * fontSize
+      ctx.fillText(char, x, y)
+
+      if (y > canvas.height && Math.random() > 0.975) {
+        drops[i] = 0
+      }
+      drops[i]++
+    }
+
+    matrixAnimId = requestAnimationFrame(draw)
+  }
+  draw()
+}
+
+function stopMatrixRain() {
+  if (matrixAnimId !== null) {
+    cancelAnimationFrame(matrixAnimId)
+    matrixAnimId = null
+  }
+}
+
+async function expandToResume() {
+  const el = cardRef.value
+  if (!el) {
+    router.push('/resume')
+    return
+  }
+  const rect = el.getBoundingClientRect()
+
+  // 重置状态
+  expandStarted = false
+  hackerContentVisible.value = false
+  hackerStatus.value = ''
+  hackerOutputLines.value = []
+
+  const initialStyle = {
+    position: 'fixed',
+    top: rect.top + 'px',
+    left: rect.left + 'px',
+    width: rect.width + 'px',
+    height: rect.height + 'px',
+    borderRadius: '16px',
+    background: '#fff',
+    zIndex: '99999',
+    pointerEvents: 'auto',
+    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15)'
+  }
+
+  const targetStyle = {
+    position: 'fixed',
+    top: '0',
+    left: '0',
+    width: '100vw',
+    height: '100vh',
+    borderRadius: '0',
+    background: '#fff',
+    zIndex: '99999',
+    pointerEvents: 'auto',
+    boxShadow: 'none',
+    transition: 'top 0.55s cubic-bezier(0.4, 0, 0.2, 1), left 0.55s cubic-bezier(0.4, 0, 0.2, 1), width 0.55s cubic-bezier(0.4, 0, 0.2, 1), height 0.55s cubic-bezier(0.4, 0, 0.2, 1), border-radius 0.55s cubic-bezier(0.4, 0, 0.2, 1)'
+  }
+
+  // 注册键盘监听(允许 Ctrl+L 跳过)
+  window.addEventListener('keydown', handleKeydown)
+
+  // 第一帧:渲染初始状态
+  expandOverlayStyle.value = initialStyle
+  expandOverlay.visible = true
+
+  // 第二帧:放大 + 启动黑客动画
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      expandOverlayStyle.value = targetStyle
+      // 放大完成后显示黑客内容
+      setTimeout(() => {
+        startMatrixRain()
+        runHackerSequence()
+      }, 300)
+    })
+  })
+
+  // 放大完成后,白色渐变为黑色
+  setTimeout(() => {
+    expandOverlayStyle.value = {
+      ...targetStyle,
+      background: '#0a0a1e',
+      transition: 'background 0.4s ease'
+    }
+  }, 560)
+
+  // 变黑完成后跳转(黑客效果6秒)
+  setTimeout(() => {
+    stopMatrixRain()
+    cleanupExpandTimers()
+    router.push('/resume')
+  }, 6000)
+}
+
+async function runHackerSequence() {
+  hackerContentVisible.value = true
+  for (const step of hackerSteps) {
+    hackerStatus.value = step.status
+    for (const line of step.lines) {
+      await new Promise(r => setTimeout(r, 180 + Math.random() * 80))
+      hackerOutputLines.value.push({ ...line, glitch: Math.random() > 0.5 })
+    }
+    await new Promise(r => setTimeout(r, 250))
+  }
+}
 
 // 显示的技能标签（取前6个）
 const visibleTags = computed(() => {
@@ -218,9 +463,14 @@ function handleLogout() {
   router.push('/')
 }
 
-onMounted(() => {
+onMounted(async () => {
   fetchUserInfo()
   fetchResumeList()
+  // 触发入场动画
+  await nextTick()
+  setTimeout(() => {
+    animated.value = true
+  }, 500)
 })
 </script>
 

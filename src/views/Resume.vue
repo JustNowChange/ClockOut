@@ -1,5 +1,5 @@
 <template>
-  <div class="resume-page" :class="{ 'readonly-mode': isReadonly }">
+  <div class="resume-page" :class="{ 'readonly-mode': isReadonly, 'curtain-open': pageAnimated }">
     <!-- 只读模式提示 -->
     <div class="readonly-badge" v-if="isReadonly">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -16,7 +16,7 @@
       </div>
     </transition>
 
-    <div class="resume-container" :class="{ 'print-mode': isPrintMode, 'edit-mode': isEditMode }">
+    <div class="resume-container" :class="{ 'print-mode': isPrintMode, 'edit-mode': isEditMode, 'open-anim': pageAnimated }">
       <!-- 加载中 -->
       <div class="loading-overlay" v-if="(isReadonly && readonlyLoading) || myResumeLoading">
         <div class="loading-spinner"></div>
@@ -339,7 +339,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import useResume, { MODULE_TYPES } from '../function/useResume'
 
@@ -438,6 +438,9 @@ const toastMessage = ref('')
 const toastType = ref<'success' | 'error'>('success')
 let toastTimer: number | null = null
 
+// ============ 入场动画 ============
+const pageAnimated = ref(false)
+
 function showToast(message: string, type: 'success' | 'error' = 'success') {
   toastMessage.value = message
   toastType.value = type
@@ -465,6 +468,11 @@ onMounted(async () => {
       myResumeLoading.value = false
     }
   }
+  // 数据加载完成后触发幕布揭开动画
+  await nextTick()
+  setTimeout(() => {
+    pageAnimated.value = true
+  }, 100)
 })
 
 onBeforeUnmount(() => {
