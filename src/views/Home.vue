@@ -10,11 +10,14 @@
         </div>
 
         <div class="resume-list" :class="{ 'loading': listLoading }">
-          <div class="resume-list-item"
+          <div
+            class="resume-list-item"
             v-for="(item, idx) in resumeList"
             :key="item.id"
+            :ref="el => setListItemRef(item.id, el as HTMLElement)"
+            :class="{ 'list-item-press': pressedListId === item.id }"
             :style="animated ? { animation: 'fadeInUp 0.8s ease forwards', animationDelay: (1.2 + idx * 0.12) + 's' } : {}"
-            @click="goToReadonlyResume(item.id)">
+            @click="onListItemClick(item.id)">
             <div class="item-avatar">
               <span>{{ item.name.charAt(0) }}</span>
             </div>
@@ -45,6 +48,7 @@
         <div
           ref="cardRef"
           class="resume-preview-card"
+          :class="{ 'card-press': cardPressed }"
           @click="expandToResume"
         >
           <div class="preview-header">
@@ -133,7 +137,7 @@
 
     <!-- User Avatar at bottom center -->
     <div class="user-avatar-wrapper" @mouseenter="showAvatarPanel = true" @mouseleave="showAvatarPanel = false">
-      <div class="user-avatar" @click="goToResume">
+      <div class="user-avatar" @click="toggleAvatarPanel">
         <div class="avatar-circle">
           <span>{{ resume.core.name.charAt(0) }}</span>
         </div>
@@ -152,12 +156,6 @@
         </div>
         <div class="panel-divider"></div>
         <div class="panel-menu">
-          <div class="menu-item" @click="goToResume">
-            <span>我的简历</span>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="9 18 15 12 9 6"></polyline>
-            </svg>
-          </div>
           <div class="menu-item logout" @click="handleLogout">
             <span>退出登录</span>
           </div>
@@ -203,6 +201,106 @@
         </div>
       </div>
     </Teleport>
+
+    <!-- List item expand overlay with hacker intrusion animation -->
+    <Teleport to="body">
+      <div
+        v-if="listExpand.visible"
+        class="list-expand-overlay"
+        :class="[
+          { 'intrusion-mode': intrusionPhase },
+          { 'attack-mode': intrusionPhase === 'intruding' },
+          { 'alert-mode': intrusionPhase === 'detected' },
+          { 'block-mode': intrusionPhase === 'blocking' },
+          { 'secured-mode': intrusionPhase === 'secured' }
+        ]"
+        :style="listExpandStyle"
+        @click="onListOverlayClick"
+      >
+        <!-- Matrix rain -->
+        <canvas ref="listMatrixCanvas" class="matrix-canvas"></canvas>
+
+        <!-- Territory occupation grid -->
+        <div class="territory-grid" :class="{ 'reclaim-mode': intrusionPhase === 'blocking' || intrusionPhase === 'secured' }" v-if="intrusionPhase">
+          <div
+            v-for="i in blockCount"
+            :key="i"
+            class="territory-block"
+            :class="{
+              'block-occupied': occupiedBlocks.includes(i - 1),
+              'block-reclaimed': reclaimedBlocks.includes(i - 1),
+              'block-reclaiming': reclaimingBlocks.includes(i - 1),
+              'block-empty': !occupiedBlocks.includes(i - 1) && !reclaimedBlocks.includes(i - 1) && !reclaimingBlocks.includes(i - 1)
+            }"
+            :style="{ '--delay': (i * 0.015) + 's' }"
+          ></div>
+          <!-- Reclaim wave effect -->
+          <div class="reclaim-wave" v-if="intrusionPhase === 'blocking' || intrusionPhase === 'secured'"></div>
+        </div>
+
+        <!-- Red alert flash overlay -->
+        <div class="red-flash" v-if="intrusionPhase === 'detected' || intrusionPhase === 'blocking'"></div>
+
+        <!-- Green secured glow overlay -->
+        <div class="secured-overlay" :class="{ 'secured-active': intrusionPhase === 'secured' }">
+          <div class="checkmark-circle">
+            <svg viewBox="0 0 52 52" class="checkmark">
+              <circle cx="26" cy="26" r="25" fill="#22c55e" class="check-circle"></circle>
+              <path fill="none" stroke="#fff" stroke-width="4" d="M14.1 27.2l7.1 7.2 16.7-16.8" class="check-mark"></path>
+            </svg>
+            <div class="secured-text">ACCESS GRANTED</div>
+            <div class="secured-sub">Profile unlocked in read-only mode</div>
+          </div>
+        </div>
+
+        <!-- Warning triangle overlay during detected/blocking -->
+        <div class="warning-overlay" :class="{ 'warning-active': intrusionPhase === 'detected' || intrusionPhase === 'blocking' }">
+          <div class="warning-triangle">
+            <svg viewBox="0 0 200 180" class="warning-svg">
+              <polygon
+                points="100,15 188,168 12,168"
+                fill="#ff1a1a"
+                stroke="#ff4444"
+                stroke-width="3"
+                class="tri-outline"
+              />
+              <text x="100" y="145" text-anchor="middle" fill="#fff" font-size="88" font-weight="900" class="tri-mark">!</text>
+            </svg>
+            <div class="warning-label">{{ intrusionPhase === 'blocking' ? 'ADMIN INTERVENING' : 'INTRUSION DETECTED' }}</div>
+          </div>
+          <div class="warning-dots">
+            <span></span><span></span><span></span>
+          </div>
+        </div>
+
+        <!-- Terminal output (only during intruding phase) -->
+        <div class="intrusion-terminal" v-if="intrusionPhase === 'intruding'">
+          <div class="terminal-line">
+            <span class="prompt">$</span>
+            <span class="cmd">access --profile {{ currentUser?.name || 'user' }} --bypass-security</span>
+            <span class="cursor">_</span>
+          </div>
+          <div class="terminal-output" v-for="(line, i) in intrusionLines" :key="i" :class="{ 'alert-line': line.alert, 'success-line': line.success }">
+            <span>{{ line.text }}</span>
+          </div>
+        </div>
+
+        <!-- Status -->
+        <div class="intrusion-status" v-if="intrusionPhase">
+          <span class="status-dot" :class="{ 'alert-dot': intrusionPhase === 'detected' || intrusionPhase === 'blocking', 'success-dot': intrusionPhase === 'secured' }"></span>
+          <span class="status-text">{{ intrusionStatus }}</span>
+          <span class="status-arrow">↓</span>
+        </div>
+
+        <!-- Skip hint -->
+        <div class="skip-hint" v-if="intrusionPhase">
+          <span class="skip-key">Ctrl</span>
+          <span class="skip-plus">+</span>
+          <span class="skip-key">L</span>
+          <span class="skip-label">跳过加载</span>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -223,10 +321,15 @@ const { resume, findModuleByType, resumeList, listLoading, fetchResumeList } = u
 const showAvatarPanel = ref(false)
 const animated = ref(false)
 
+function toggleAvatarPanel() {
+  showAvatarPanel.value = !showAvatarPanel.value
+}
+
 // 卡片放大过渡
 const cardRef = ref<HTMLElement | null>(null)
 const expandOverlay = reactive({ visible: false, expanded: false })
 const expandOverlayStyle = ref<Record<string, string>>({})
+const cardPressed = ref(false)
 let expandStarted = false
 
 function onOverlayClick() {
@@ -334,6 +437,10 @@ async function expandToResume() {
     return
   }
   const rect = el.getBoundingClientRect()
+
+  // 点击反馈动画(快速按下再弹起)
+  cardPressed.value = true
+  setTimeout(() => { cardPressed.value = false }, 200)
 
   // 重置状态
   expandStarted = false
@@ -454,13 +561,385 @@ function goToReadonlyResume(id: number) {
   router.push({ path: '/resume', query: { mode: 'readonly', id: String(id) } })
 }
 
+// 他人简历列表项 - 黑客入侵动画（被管理员阻止）
+const listItemRefs = ref<Map<number, HTMLElement>>(new Map())
+const listExpand = reactive({ visible: false })
+const listExpandStyle = ref<Record<string, string>>({})
+const listMatrixCanvas = ref<HTMLCanvasElement | null>(null)
+const intrusionPhase = ref<'intruding' | 'detected' | 'blocking' | 'secured' | null>(null)
+const intrusionStatus = ref('')
+const intrusionLines = ref<{ text: string; alert?: boolean; success?: boolean }[]>([])
+
+// Territory occupation system
+const blockCount = 180
+const occupiedBlocks = ref<number[]>([])
+const reclaimedBlocks = ref<number[]>([])
+const reclaimingBlocks = ref<number[]>([])
+
+// Grid dimensions: 18 columns x 10 rows for 180 blocks
+
+let listMatrixAnimId: number | null = null
+let listExpandJumpTimer: number | null = null
+
+function onListOverlayClick() {
+  if (!listExpand.visible) return
+  skipListAnimation()
+}
+
+function skipListAnimation() {
+  stopListMatrixRain()
+  if (listExpandJumpTimer !== null) {
+    clearTimeout(listExpandJumpTimer)
+    listExpandJumpTimer = null
+  }
+  window.removeEventListener('keydown', handleListKeydown)
+  resetTerritory()
+  listExpand.visible = false
+  router.push({ path: '/resume', query: { mode: 'readonly', id: String(currentListId) } })
+}
+
+let currentListId = 0
+
+function handleListKeydown(e: KeyboardEvent) {
+  if (listExpand.visible && e.ctrlKey && (e.key === 'l' || e.key === 'L')) {
+    e.preventDefault()
+    skipListAnimation()
+  }
+}
+
+function setListItemRef(id: number, el: HTMLElement | null) {
+  if (el) {
+    listItemRefs.value.set(id, el)
+  } else {
+    listItemRefs.value.delete(id)
+  }
+}
+
+function startListMatrixRain() {
+  const canvas = listMatrixCanvas.value
+  if (!canvas) return
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return
+
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*'
+  const fontSize = 12
+  let columns = 0
+  let drops: number[] = []
+
+  function resize() {
+    if (!canvas) return
+    canvas.width = window.innerWidth
+    canvas.height = window.innerHeight
+    columns = Math.floor(canvas.width / fontSize)
+    drops = new Array(columns).fill(0).map(() => Math.random() * canvas.height / fontSize)
+  }
+  resize()
+  window.addEventListener('resize', resize)
+
+  function draw() {
+    if (!ctx || !canvas) return
+    ctx.fillStyle = 'rgba(26, 26, 46, 0.08)'
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
+    ctx.fillStyle = 'rgba(26, 26, 46, 0.6)'
+    ctx.font = fontSize + 'px monospace'
+    for (let i = 0; i < drops.length; i++) {
+      const char = chars[Math.floor(Math.random() * chars.length)]
+      const x = i * fontSize
+      const y = drops[i] * fontSize
+      ctx.fillText(char, x, y)
+      if (y > canvas.height && Math.random() > 0.975) {
+        drops[i] = 0
+      }
+      drops[i]++
+    }
+    listMatrixAnimId = requestAnimationFrame(draw)
+  }
+  draw()
+}
+
+function stopListMatrixRain() {
+  if (listMatrixAnimId !== null) {
+    cancelAnimationFrame(listMatrixAnimId)
+    listMatrixAnimId = null
+  }
+}
+
+function resetTerritory() {
+  occupiedBlocks.value = []
+  reclaimedBlocks.value = []
+  reclaimingBlocks.value = []
+}
+
+async function occupyBlocks(count: number, maxPercent: number) {
+  const targetCount = Math.floor(blockCount * maxPercent)
+  const allIndices = Array.from({ length: blockCount }, (_, i) => i)
+  for (let i = allIndices.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[allIndices[i], allIndices[j]] = [allIndices[j], allIndices[i]]
+  }
+  const targetIndices = allIndices.slice(0, targetCount)
+  
+  // Process in batches of 3 for slower, more visible fill
+  for (let batch = 0; batch < targetIndices.length; batch += 3) {
+    const batchEnd = Math.min(batch + 3, targetIndices.length)
+    const newBlocks = [...occupiedBlocks.value]
+    for (let i = batch; i < batchEnd; i++) {
+      if (!newBlocks.includes(targetIndices[i])) {
+        newBlocks.push(targetIndices[i])
+      }
+    }
+    occupiedBlocks.value = newBlocks
+    await new Promise(r => setTimeout(r, 20))
+  }
+}
+
+async function occupyAllBlocks() {
+  const allIndices = Array.from({ length: blockCount }, (_, i) => i)
+  // Add remaining blocks in batches
+  for (let batch = 0; batch < allIndices.length; batch += 8) {
+    const batchEnd = Math.min(batch + 8, allIndices.length)
+    const newBlocks = [...occupiedBlocks.value]
+    for (let i = batch; i < batchEnd; i++) {
+      if (!newBlocks.includes(allIndices[i])) {
+        newBlocks.push(allIndices[i])
+      }
+    }
+    occupiedBlocks.value = newBlocks
+    await new Promise(r => setTimeout(r, 4))
+  }
+}
+
+async function reclaimBlocks() {
+  const blocksToReclaim = [...occupiedBlocks.value]
+  // Sort by position for wave effect (top-left to bottom-right)
+  blocksToReclaim.sort((a, b) => {
+    const rowA = Math.floor(a / 18), colA = a % 18
+    const rowB = Math.floor(b / 18), colB = b % 18
+    return (rowA + colA) - (rowB + colB)
+  })
+  
+  // Process in batches of 6
+  for (let batch = 0; batch < blocksToReclaim.length; batch += 6) {
+    const batchEnd = Math.min(batch + 6, blocksToReclaim.length)
+    const newReclaiming = [...reclaimingBlocks.value]
+    for (let i = batch; i < batchEnd; i++) {
+      newReclaiming.push(blocksToReclaim[i])
+    }
+    reclaimingBlocks.value = newReclaiming
+    await new Promise(r => setTimeout(r, 8))
+  }
+  
+  // Move all to reclaimed state
+  reclaimedBlocks.value = [...occupiedBlocks.value]
+  reclaimingBlocks.value = []
+  occupiedBlocks.value = []
+}
+
+async function runIntrusionSequence(id: number) {
+  resetTerritory()
+  
+  // 阶段1: 黑客入侵 — 占领区块 (约 2s)
+  intrusionLines.value = []
+  intrusionPhase.value = 'intruding'
+  intrusionStatus.value = '⚠ HACKER INTRUSION IN PROGRESS...'
+
+  // Start occupying blocks simultaneously with terminal output
+  const occupyPromise = occupyBlocks(blockCount, 0.88)
+
+  const hackSteps = [
+    { text: '[HACK] Injecting malicious payload v2.1...', alert: false },
+    { text: '[HACK] Bypassing firewall: 4 of 5 rules bypassed', alert: false },
+    { text: '[HACK] Elevating privileges to ROOT...', alert: false },
+    { text: '[HACK] Accessing profile database (attempt #3)...', alert: false },
+    { text: '[HACK] Decrypting profile records...', alert: false },
+  ]
+
+  for (const s of hackSteps) {
+    await new Promise(r => setTimeout(r, 350))
+    intrusionLines.value.push({ ...s })
+  }
+
+  // Wait for occupation to complete (blocks fill to ~88%)
+  await occupyPromise
+
+  // 阶段2: 入侵被检测 (约 1s)
+  await new Promise(r => setTimeout(r, 200))
+  intrusionPhase.value = 'detected'
+  intrusionStatus.value = '⚠ INTRUSION DETECTED — ADMIN NOTIFIED'
+
+  const alertSteps = [
+    { text: '[ALERT] Intrusion attempt detected from IP: 192.168.1.247', alert: true },
+    { text: '[ALERT] Territory occupation at ' + Math.round((occupiedBlocks.value.length / blockCount) * 100) + '%', alert: true },
+    { text: '[ALERT] Auto-defense systems engaged', alert: true },
+    { text: '[ADMIN] Admin team dispatched — counter-attack ready', alert: true },
+  ]
+
+  for (const s of alertSteps) {
+    await new Promise(r => setTimeout(r, 200))
+    intrusionLines.value.push({ ...s })
+  }
+
+  // 阶段3: 管理员介入 — 开始反占 (约 1.5s)
+  await new Promise(r => setTimeout(r, 200))
+  intrusionPhase.value = 'blocking'
+  intrusionStatus.value = '🛡 ADMIN INTERVENING — RECLAIMING TERRITORY'
+
+  const blockSteps = [
+    { text: '[ADMIN] Authenticating admin credentials...', alert: false },
+    { text: '[ADMIN] Initiating territory reclaim protocol...', alert: false },
+    { text: '[ADMIN] Deploying counter-attack wave...', alert: false },
+    { text: '[ADMIN] Blocks being reclaimed in real-time...', alert: false },
+    { text: '[ADMIN] Restricting access to read-only mode', alert: false },
+    { text: '[ADMIN] Running security audit...', alert: false },
+  ]
+
+  // Start reclaiming simultaneously with terminal output
+  const reclaimPromise = reclaimBlocks()
+
+  for (const s of blockSteps) {
+    await new Promise(r => setTimeout(r, 200))
+    intrusionLines.value.push({ ...s })
+  }
+
+  // Wait for reclaim to complete
+  await reclaimPromise
+
+  // 阶段4: 系统安全 — 所有块变绿色 (约 1s)
+  await new Promise(r => setTimeout(r, 200))
+  intrusionLines.value = []
+  intrusionPhase.value = 'secured'
+  intrusionStatus.value = '✓ SYSTEM SECURED — ACCESS GRANTED (READ-ONLY)'
+
+  // Occupy ALL remaining blocks and convert them to green (no empty spots)
+  occupyAllBlocks()
+  // After a brief moment, move all to reclaimed (green) state
+  setTimeout(() => {
+    reclaimedBlocks.value = [...occupiedBlocks.value]
+    occupiedBlocks.value = []
+    reclaimingBlocks.value = []
+  }, 300)
+
+  const secureSteps = [
+    { text: '[SECURE] All intrusion attempts blocked', success: true },
+    { text: '[SECURE] Profile access granted in read-only mode', success: true },
+    { text: '[SECURE] Full audit trail logged', success: true },
+    { text: '[SECURE] System integrity verified ✓', success: true },
+  ]
+
+  for (const s of secureSteps) {
+    await new Promise(r => setTimeout(r, 200))
+    intrusionLines.value.push({ ...s })
+  }
+
+  // Wait for green animation to fully display
+  await new Promise(r => setTimeout(r, 1200))
+}
+
+function expandListItemToFullscreen(id: number) {
+  const el = listItemRefs.value.get(id)
+  currentListId = id
+  if (!el) {
+    goToReadonlyResume(id)
+    return
+  }
+  const rect = el.getBoundingClientRect()
+
+  // 重置动画状态
+  intrusionPhase.value = null
+  intrusionStatus.value = ''
+  intrusionLines.value = []
+  resetTerritory()
+
+  const initialStyle = {
+    position: 'fixed',
+    top: rect.top + 'px',
+    left: rect.left + 'px',
+    width: rect.width + 'px',
+    height: rect.height + 'px',
+    borderRadius: '12px',
+    background: '#fff',
+    zIndex: '99998',
+    pointerEvents: 'auto',
+    boxShadow: '0 6px 20px rgba(0, 0, 0, 0.12)'
+  }
+
+  const targetStyle = {
+    position: 'fixed',
+    top: '0',
+    left: '0',
+    width: '100vw',
+    height: '100vh',
+    borderRadius: '0',
+    background: '#fff',
+    zIndex: '99998',
+    pointerEvents: 'auto',
+    boxShadow: 'none',
+    transition: 'top 0.5s cubic-bezier(0.4, 0, 0.2, 1), left 0.5s cubic-bezier(0.4, 0, 0.2, 1), width 0.5s cubic-bezier(0.4, 0, 0.2, 1), height 0.5s cubic-bezier(0.4, 0, 0.2, 1), border-radius 0.5s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease'
+  }
+
+  listExpandStyle.value = initialStyle
+  listExpand.visible = true
+
+  // 注册键盘监听
+  window.addEventListener('keydown', handleListKeydown)
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      listExpandStyle.value = { ...targetStyle, background: '#fff' }
+    })
+  })
+
+  // 放大完成后变黑 + 启动入侵动画
+  setTimeout(() => {
+    listExpandStyle.value = { ...targetStyle, background: '#0a0a1e' }
+    startListMatrixRain()
+    runIntrusionSequence(id)
+  }, 500)
+
+  // 管理员介入阶段: 整个变红
+  setTimeout(() => {
+    listExpandStyle.value = {
+      ...targetStyle,
+      background: 'linear-gradient(135deg, #2a0a0a 0%, #1a0505 100%)',
+      transition: 'background 0.6s ease'
+    }
+  }, 2500)
+
+  // 系统安全阶段: 整个变绿
+  setTimeout(() => {
+    listExpandStyle.value = {
+      ...targetStyle,
+      background: 'linear-gradient(135deg, #0d2818 0%, #0a1f12 100%)',
+      transition: 'background 1.2s ease'
+    }
+  }, 5000)
+
+  // 完成后关闭动画，返回列表
+  listExpandJumpTimer = window.setTimeout(() => {
+    stopListMatrixRain()
+    window.removeEventListener('keydown', handleListKeydown)
+    listExpand.visible = false
+    goToReadonlyResume(id)
+  }, 9000)
+}
+
+const pressedListId = ref<number | null>(null)
+
+function onListItemClick(id: number) {
+  pressedListId.value = id
+  setTimeout(() => {
+    pressedListId.value = null
+    expandListItemToFullscreen(id)
+  }, 200)
+}
+
 function goToStudy(day: any) {
   router.push(`/clock?dayId=${day.id}`)
 }
 
 function handleLogout() {
   logout()
-  router.push('/')
+  window.location.href = '/'
 }
 
 onMounted(async () => {

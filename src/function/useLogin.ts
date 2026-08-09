@@ -14,6 +14,7 @@ export function useLogin() {
   const isLoading = ref(false)
   const isError = ref(false)
   const submitCount = ref(0)
+  const loginSuccess = ref(false)
 
   async function handleLogin() {
     errorMsg.value = ''
@@ -51,7 +52,7 @@ export function useLogin() {
       } else {
         localStorage.removeItem('clockout_remember_username')
       }
-      router.push('/home')
+      loginSuccess.value = true
     } else {
       errorMsg.value = result.message || '登录失败'
       isError.value = true
@@ -59,6 +60,10 @@ export function useLogin() {
     }
     
     isLoading.value = false
+  }
+
+  function navigateToHome() {
+    router.push('/home')
   }
 
   function triggerErrorRecovery() {
@@ -95,7 +100,9 @@ export function useLogin() {
     isLoading,
     isError,
     submitCount,
+    loginSuccess,
     handleLogin,
+    navigateToHome,
     togglePassword,
     resetForm,
     loadRememberedUsername

@@ -59,7 +59,7 @@ export function useRegister() {
     const result = await authRegister(username.value, password.value)
     
     if (result.success) {
-      router.push('/')
+      window.location.href = '/'
     } else {
       errorMsg.value = result.message || '注册失败'
       isError.value = true

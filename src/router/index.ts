@@ -38,5 +38,16 @@ const router = createRouter({
   routes
 })
 
+const AUTH_PAGES = ['/', '/register', '/register/form']
+
+router.beforeEach((to, from, next) => {
+  const token = localStorage.getItem('clockout_token')
+  
+  if (token && AUTH_PAGES.includes(to.path)) {
+    next('/home')
+  } else {
+    next()
+  }
+})
 
 export default router

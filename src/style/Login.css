@@ -415,6 +415,56 @@
   opacity: 1;
 }
 
+/* ============ Typing Effect ============ */
+.typing-container {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  font-family: '汉仪英雄体简', 'HYYingXiongTiJ', '汉仪英雄体', 'HYKuaiLeJ', '方正字迹-童体毛笔简体', 'Ma Shan Zheng', 'STXingkai', '华文行楷', 'KaiTi', '楷体', serif;
+  font-size: 22px;
+  line-height: 1.6;
+  letter-spacing: 2px;
+  padding: 16px 9px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  align-self: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
+.typing-text {
+  color: #000000;
+  font-weight: 700;
+  font-size: 22px;
+  padding: 2px 2px;
+  white-space: nowrap;
+  text-shadow:
+    0 0 3px rgba(255, 255, 255, 0.6),
+    0 0 8px rgb(248, 248, 248),
+    0 0 14px rgb(248, 244, 244),  
+}
+
+.typing-cursor {
+  color: #ff9f69;
+  font-weight: 700;
+  animation: typingBlink 1s step-end infinite;
+  flex-shrink: 0;
+  text-shadow:
+    0 0 4px rgba(255, 255, 255, 0.9),
+    0 0 10px rgba(161, 142, 218, 0.6),
+    0 0 18px rgba(108, 63, 245, 0.35);
+}
+
+@keyframes typingBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
 /* Responsive */
 @media (max-width: 900px) {
   .login-page {

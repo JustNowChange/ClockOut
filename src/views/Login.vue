@@ -1,5 +1,12 @@
 <template>
   <div class="login-page">
+    <!-- Loading Overlay -->
+    <LoadingOverlay 
+      v-if="showLoading"
+      :duration="3000"
+      @complete="onAnimationComplete"
+    />
+
     <!-- Left Panel -->
     <div class="left-panel">
       <div class="logo">
@@ -11,6 +18,14 @@
         </svg>
         <span>ClockOut</span>
       </div>
+
+      <!-- 打字效果区域 -->
+      <div class="typing-container">
+        <span class="typing-prompt"></span>
+        <span class="typing-text" ref="typingTextRef"></span>
+        <span class="typing-cursor">_</span>
+      </div>
+
       <div class="characters-wrapper">
         <div class="characters-scene" id="characters-scene">
           <!-- Purple character -->
@@ -144,9 +159,10 @@
 </template>
 
 <script setup lang="ts">
-import { watch, onMounted } from 'vue'
+import { ref, watch, onMounted, onUnmounted } from 'vue'
 import useLogin from '../function/useLogin'
 import useCharacters from '../function/useCharacters'
+import LoadingOverlay from '../components/LoadingOverlay.vue'
 
 const {
   username,
@@ -156,13 +172,105 @@ const {
   errorMsg,
   isLoading,
   isError,
+  loginSuccess,
   handleLogin,
+  navigateToHome,
   togglePassword,
   loadRememberedUsername
 } = useLogin()
 
+const showLoading = ref(false)
+
+function onAnimationComplete() {
+  showLoading.value = false
+  navigateToHome()
+}
+
+watch(loginSuccess, (newVal) => {
+  if (newVal) {
+    showLoading.value = true
+  }
+})
+
+// 打字效果
+const typingTextRef = ref<HTMLElement | null>(null)
+const typingMessages = [
+  '欢迎来到 ClockOut...',
+  '"我没有天赋..."',
+  '"但我总想试一试,一个普通人怀有梦想会是什么样..."',
+  '"人生没有无用的经历..."',
+  '"所以..."',
+  '"很简单，我进厂不就是了"',
+  '"说完，他的气息不再掩饰，显露而出"',
+  '"再回流水线，竟是大专巅峰修为！"',
+  '"我乃大专巅峰！谁敢叼我 谁能叼我！"',
+  '"一瞬间，流水线再次一寂"',
+  '"只见他挥手间就飞出三只蛊虫，一转苦力蛊，二转牛马蛊，三转吗喽蛊!"',
+  '"电子厂中寒风吹  流水线上大神归。"',
+  '"无休倒班万人退，本科悔而我不悔！"',
+  '"他牢牢占据工位，转身低眉道:不过是些许夜班罢了"',
+  'clockout init --success ✓'
+]
+let typingTimer: number | null = null
+let clearTimer: number | null = null
+let messageIndex = 0
+let charIndex = 0
+let isDeleting = false
+
+function startTypingAnimation() {
+  if (!typingTextRef.value) return
+
+  const currentMessage = typingMessages[messageIndex]
+  const el = typingTextRef.value
+
+  if (!isDeleting) {
+    // 正在打字
+    if (charIndex < currentMessage.length) {
+      el.textContent = currentMessage.substring(0, charIndex + 1)
+      charIndex++
+      const typingSpeed = Math.random() > 0.8 ? 120 : 60 + Math.random() * 40
+      typingTimer = window.setTimeout(startTypingAnimation, typingSpeed)
+    } else {
+      // 打完了，等待一会开始删除
+      isDeleting = true
+      clearTimer = window.setTimeout(startTypingAnimation, 2500)
+    }
+  } else {
+    // 正在删除
+    if (charIndex > 0) {
+      el.textContent = currentMessage.substring(0, charIndex - 1)
+      charIndex--
+      clearTimer = window.setTimeout(startTypingAnimation, 30)
+    } else {
+      // 删除完了，换下一条
+      isDeleting = false
+      messageIndex = (messageIndex + 1) % typingMessages.length
+      clearTimer = window.setTimeout(startTypingAnimation, 500)
+    }
+  }
+}
+
+function cleanupTypingTimers() {
+  if (typingTimer !== null) {
+    clearTimeout(typingTimer)
+    typingTimer = null
+  }
+  if (clearTimer !== null) {
+    clearTimeout(clearTimer)
+    clearTimer = null
+  }
+}
+
 onMounted(() => {
   loadRememberedUsername()
+  // 延迟一点启动打字动画
+  setTimeout(() => {
+    startTypingAnimation()
+  }, 800)
+})
+
+onUnmounted(() => {
+  cleanupTypingTimers()
 })
 
 const {
