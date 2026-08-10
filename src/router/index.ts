@@ -39,12 +39,18 @@ const router = createRouter({
 })
 
 const AUTH_PAGES = ['/', '/register', '/register/form']
+// 受保护页面：未登录用户禁止访问
+const PROTECTED_PAGES = ['/home', '/clock', '/resume']
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _from, next) => {
   const token = localStorage.getItem('clockout_token')
-  
+
   if (token && AUTH_PAGES.includes(to.path)) {
+    // 已登录访问登录页 → 跳首页
     next('/home')
+  } else if (!token && PROTECTED_PAGES.includes(to.path)) {
+    // 未登录访问受保护页 → 跳登录
+    next('/')
   } else {
     next()
   }
