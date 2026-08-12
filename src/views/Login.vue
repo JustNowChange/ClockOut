@@ -4,7 +4,7 @@
     <CinematicIntro v-if="showIntro" :visible="showIntro" @complete="onIntroComplete" />
 
     <!-- 实时弹幕背景 -->
-    <DanmakuOverlay v-if="!showIntro" :density="1" :enabled="true" />
+    <DanmakuOverlay v-if="!showIntro" :density="1" :enabled="danmakuEnabled" />
 
     <!-- Loading Overlay -->
     <LoadingOverlay
@@ -15,6 +15,99 @@
 
     <!-- Left Panel -->
     <div class="left-panel">
+      <!-- 主题装饰层 (樱花树 / 云 / 星月) -->
+      <div class="theme-decor-layer" aria-hidden="true">
+        <div class="decor decor-pink">
+          <!-- 樱花树：位于左侧，树干从底部升起，树冠占左上方 -->
+          <svg class="sakura-tree" viewBox="0 0 320 600" preserveAspectRatio="xMinYMax meet" xmlns="http://www.w3.org/2000/svg">
+            <!-- 树干 -->
+            <path d="M70,600 C72,530 60,480 68,430 C74,390 84,365 92,330 C96,310 94,288 100,266 C104,248 110,232 112,210"
+                  stroke="#7a4a3d" stroke-width="14" fill="none" stroke-linecap="round" />
+            <path d="M68,520 C50,510 38,500 28,482" stroke="#7a4a3d" stroke-width="7" fill="none" stroke-linecap="round"/>
+            <path d="M80,470 C64,462 50,456 40,446" stroke="#7a4a3d" stroke-width="6" fill="none" stroke-linecap="round"/>
+            <path d="M86,430 C110,420 132,408 150,390" stroke="#7a4a3d" stroke-width="8" fill="none" stroke-linecap="round"/>
+            <path d="M90,360 C118,350 140,340 162,322" stroke="#7a4a3d" stroke-width="6" fill="none" stroke-linecap="round"/>
+            <path d="M94,300 C120,294 140,286 158,270" stroke="#7a4a3d" stroke-width="5" fill="none" stroke-linecap="round"/>
+            <!-- 树冠：多个重叠的粉色圆 -->
+            <g>
+              <circle cx="112" cy="180" r="90"  fill="#ffd3e4" opacity="0.95"/>
+              <circle cx="58"  cy="190" r="70"  fill="#ffc0d6" opacity="0.95"/>
+              <circle cx="170" cy="200" r="78"  fill="#ffd9e8" opacity="0.95"/>
+              <circle cx="96"  cy="120" r="68"  fill="#ffb8d0" opacity="0.95"/>
+              <circle cx="150" cy="130" r="60"  fill="#ffcce0" opacity="0.9"/>
+              <circle cx="36"  cy="150" r="48"  fill="#ffd3e4" opacity="0.9"/>
+              <circle cx="200" cy="160" r="44"  fill="#ffb8d0" opacity="0.9"/>
+              <circle cx="120" cy="240" r="54"  fill="#ffcce0" opacity="0.88"/>
+              <circle cx="58"  cy="250" r="42"  fill="#ffc0d6" opacity="0.88"/>
+              <circle cx="180" cy="250" r="40"  fill="#ffd3e4" opacity="0.88"/>
+            </g>
+            <!-- 花朵点缀 -->
+            <g fill="#fff6f9" opacity="0.9">
+              <circle cx="86"  cy="168" r="4"/>
+              <circle cx="128" cy="152" r="3.5"/>
+              <circle cx="160" cy="180" r="4"/>
+              <circle cx="68"  cy="140" r="3"/>
+              <circle cx="100" cy="110" r="3.5"/>
+              <circle cx="144" cy="124" r="3"/>
+              <circle cx="192" cy="208" r="3.5"/>
+              <circle cx="46"  cy="174" r="3"/>
+              <circle cx="104" cy="224" r="3"/>
+              <circle cx="158" cy="236" r="3"/>
+              <circle cx="72"  cy="228" r="2.8"/>
+            </g>
+          </svg>
+        </div>
+
+        <div class="decor decor-white">
+          <!-- 白色主题：柔和云朵 -->
+          <svg class="cloud-decor" viewBox="0 0 500 300" preserveAspectRatio="xMidYMin meet" xmlns="http://www.w3.org/2000/svg">
+            <g fill="#eef2f8" opacity="0.75">
+              <ellipse cx="130" cy="70"  rx="62" ry="22"/>
+              <ellipse cx="180" cy="62"  rx="48" ry="20"/>
+              <ellipse cx="100" cy="78"  rx="32" ry="18"/>
+            </g>
+            <g fill="#e8eef6" opacity="0.7">
+              <ellipse cx="380" cy="100" rx="56" ry="20"/>
+              <ellipse cx="420" cy="94"  rx="40" ry="18"/>
+              <ellipse cx="348" cy="110" rx="28" ry="16"/>
+            </g>
+            <g fill="#f2f4fa" opacity="0.6">
+              <ellipse cx="260" cy="210" rx="50" ry="18"/>
+              <ellipse cx="220" cy="220" rx="32" ry="16"/>
+            </g>
+          </svg>
+        </div>
+
+        <div class="decor decor-black">
+          <!-- 黑色主题：月亮 + 星星 -->
+          <svg class="star-decor" viewBox="0 0 500 600" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+            <!-- 月亮 -->
+            <defs>
+              <radialGradient id="moon-grad" cx="40%" cy="40%" r="60%">
+                <stop offset="0%"   stop-color="#fff9e6"/>
+                <stop offset="100%" stop-color="#f0e6b8"/>
+              </radialGradient>
+            </defs>
+            <circle cx="420" cy="90" r="42" fill="url(#moon-grad)" opacity="0.95"/>
+            <!-- 星星 -->
+            <g fill="#fff" opacity="0.9">
+              <polygon points="80,70 83,80 93,80 85,86 88,96 80,90 72,96 75,86 67,80 77,80"/>
+              <polygon points="200,150 202,157 209,157 203,161 205,168 200,164 195,168 197,161 191,157 198,157" opacity="0.8"/>
+              <polygon points="330,220 332,226 338,226 333,230 335,236 330,232 325,236 327,230 322,226 328,226" opacity="0.85"/>
+              <polygon points="130,330 132,336 138,336 133,340 135,346 130,342 125,346 127,340 122,336 128,336" opacity="0.7"/>
+              <polygon points="260,400 262,406 268,406 263,410 265,416 260,412 255,416 257,410 252,406 258,406" opacity="0.78"/>
+              <circle cx="40"  cy="180" r="1.5"/>
+              <circle cx="160" cy="240" r="1.8"/>
+              <circle cx="300" cy="120" r="2"/>
+              <circle cx="380" cy="300" r="1.6"/>
+              <circle cx="70"  cy="430" r="1.7"/>
+              <circle cx="220" cy="500" r="1.4"/>
+              <circle cx="400" cy="450" r="1.8"/>
+            </g>
+          </svg>
+        </div>
+      </div>
+
       <div class="logo">
         <svg viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2">
           <path d="M12 2L15 9H9L12 2Z" />
@@ -162,6 +255,18 @@ const showIntro = ref(true)
 const charClicked = ref(false)
 let charResetTimer: number | null = null
 
+// 弹幕开关：从 localStorage 读取，默认开
+const DANMAKU_KEY = 'clockout-danmaku-enabled'
+const danmakuEnabled = ref(true)
+function loadDanmakuSetting() {
+  const saved = localStorage.getItem(DANMAKU_KEY)
+  if (saved === '0') danmakuEnabled.value = false
+}
+function onDanmakuToggleChanged() {
+  const saved = localStorage.getItem(DANMAKU_KEY)
+  danmakuEnabled.value = saved !== '0'
+}
+
 const INTERACTIVE_SELECTORS = 'input, button, textarea, select, a, label, [role="button"], [contenteditable], .no-cute'
 
 function triggerCharacterChange() {
@@ -183,7 +288,9 @@ function onGlobalClick(e: MouseEvent) {
 
 onMounted(() => {
   window.addEventListener('click', onGlobalClick)
+  window.addEventListener('clockout-danmaku-toggle', onDanmakuToggleChanged)
   loadRememberedUsername()
+  loadDanmakuSetting()
   // 预加载角色图片到浏览器缓存
   preloadImages([charDefaultImg, charClickedImg])
   setTimeout(() => { startTypingAnimation() }, 800)
@@ -191,6 +298,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   window.removeEventListener('click', onGlobalClick)
+  window.removeEventListener('clockout-danmaku-toggle', onDanmakuToggleChanged)
   cleanupTypingTimers()
 })
 

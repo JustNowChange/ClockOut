@@ -1,5 +1,106 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Ma+Shan+Zheng&display=swap');
 
+:root {
+  /* ========== 默认（浅色/白色/粉色通用）变量 ========== */
+  --page-bg: #ffffff;
+  --panel-bg: #ffffff;
+
+  /* 文字颜色 - 三级体系 */
+  --text-primary: #1a1a2e;     /* 主要标题、重要文字 */
+  --text-secondary: #444444;   /* 次要文字、正文 */
+  --text-tertiary: #888888;    /* 辅助文字、hint、meta */
+  --text-quaternary: #aaaaaa;  /* 更浅的辅助色 */
+
+  /* 边框 & 分隔线 */
+  --border-primary: #e0e0e0;
+  --border-secondary: #e8e8e8;
+  --border-tertiary: #f0f0f0;
+
+  /* 卡片 & 容器背景 */
+  --card-bg: #ffffff;
+  --card-bg-soft: rgba(255, 255, 255, 0.75);
+  --card-bg-semi: rgba(255, 255, 255, 0.85);
+  --card-bg-strong: rgba(255, 255, 255, 0.95);
+  --surface-bg: #f8f8f8;      /* 次级容器底 */
+  --surface-hover: #f0f0f0;   /* hover底 */
+
+  /* 输入框 */
+  --input-bg: transparent;
+  --input-placeholder: #cccccc;
+  --input-border: #e0e0e0;
+
+  /* 滚动条 */
+  --scrollbar-track: #e0e0e0;
+  --scrollbar-thumb: #bbbbbb;
+  --scrollbar-thumb-hover: #999999;
+
+  /* 按钮（深色按钮在白/粉底下是深色底+白字） */
+  --btn-dark-bg: #1a1a2e;
+  --btn-dark-fg: #ffffff;
+  --btn-dark-border: #1a1a2e;
+
+  /* 其他辅助 */
+  --divider-line: rgba(0, 0, 0, 0.08);
+  --soft-shadow: 0 8px 40px rgba(0, 0, 0, 0.08), 0 2px 12px rgba(0, 0, 0, 0.04);
+  --avatar-ring: rgba(255, 255, 255, 0.8);
+  --logo-fg: #333333;
+  --logo-svg-bg: rgba(0, 0, 0, 0.08);
+  --typing-fg: #000000;
+}
+
+/* ========== 粉色主题 （与默认一致，按需微调） ========== */
+html[data-theme="pink"] {
+  --page-bg: #fff0f5;
+}
+
+/* ========== 黑色主题 - 核心反转 ========== */
+html[data-theme="black"] {
+  --page-bg: #1a1a2e;
+  --panel-bg: #1a1a2e;
+
+  /* 文字：从深→浅 */
+  --text-primary: #f0f0f5;
+  --text-secondary: #d0d0dc;
+  --text-tertiary: #9090a8;
+  --text-quaternary: #686884;
+
+  /* 边框：从浅→深灰 */
+  --border-primary: #3a3a52;
+  --border-secondary: #2e2e44;
+  --border-tertiary: #262638;
+
+  /* 卡片：从白→深灰半透 */
+  --card-bg: #23233a;
+  --card-bg-soft: rgba(35, 35, 58, 0.75);
+  --card-bg-semi: rgba(35, 35, 58, 0.85);
+  --card-bg-strong: rgba(35, 35, 58, 0.95);
+  --surface-bg: #26263e;
+  --surface-hover: #2e2e4a;
+
+  /* 输入框 */
+  --input-bg: transparent;
+  --input-placeholder: #555570;
+  --input-border: #3a3a52;
+
+  /* 滚动条：深色系 */
+  --scrollbar-track: #262638;
+  --scrollbar-thumb: #4a4a68;
+  --scrollbar-thumb-hover: #606088;
+
+  /* 按钮：在黑底下，深色按钮改为浅色底+深字，保持对比 */
+  --btn-dark-bg: #e8e8f0;
+  --btn-dark-fg: #1a1a2e;
+  --btn-dark-border: #e8e8f0;
+
+  /* 其他辅助 */
+  --divider-line: rgba(255, 255, 255, 0.08);
+  --soft-shadow: 0 8px 40px rgba(0, 0, 0, 0.4), 0 2px 12px rgba(0, 0, 0, 0.3);
+  --avatar-ring: rgba(255, 255, 255, 0.18);
+  --logo-fg: #f0f0f5;
+  --logo-svg-bg: rgba(255, 255, 255, 0.1);
+  --typing-fg: #ffffff;
+}
+
 *,
 *::before,
 *::after {
@@ -14,6 +115,13 @@ body {
     -apple-system,
     BlinkMacSystemFont,
     sans-serif;
-  background: #1a1a2e;
+  background: var(--page-bg);
   overflow-x: hidden;
+  transition: background 0.4s ease;
+}
+
+#app {
+  background: var(--page-bg);
+  transition: background 0.4s ease;
+  min-height: 100vh;
 }

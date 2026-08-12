@@ -37,7 +37,7 @@
   color: rgba(255, 255, 255, 0.5);
   letter-spacing: 2px;
   opacity: 0;
-  animation: fade-in 0.5s ease-out 0.5s forwards;
+  animation: fade-in 0.5s 0.5s ease-out forwards;
 }
 
 @keyframes fade-in {

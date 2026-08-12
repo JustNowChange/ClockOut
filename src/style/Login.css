@@ -5,7 +5,8 @@
   height: 100vh;
   opacity: 0;
   transform: scale(1.02);
-  transition: opacity 1.2s ease 0.3s, transform 1.2s ease 0.3s;
+  background: var(--page-bg, #1a1a2e);
+  transition: opacity 1.2s ease 0.3s, transform 1.2s ease 0.3s, background 0.4s ease;
 }
 .login-page.page-ready {
   opacity: 1;
@@ -18,9 +19,10 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  background: #fff;
+  background: var(--page-bg, #fff);
   padding: 40px 48px;
   overflow: hidden;
+  transition: background 0.4s ease;
 }
 
 .left-panel .logo {
@@ -29,18 +31,20 @@
   gap: 10px;
   font-size: 16px;
   font-weight: 600;
-  color: #333;
+  color: var(--logo-fg);
   z-index: 10;
   position: relative;
+  transition: color 0.4s ease;
 }
 
 .left-panel .logo svg {
   width: 28px;
   height: 28px;
-  background: rgba(0, 0, 0, 0.08);
+  background: var(--logo-svg-bg);
   padding: 4px;
   border-radius: 6px;
-  color: #333;
+  color: var(--logo-fg);
+  transition: background 0.4s ease, color 0.4s ease;
 }
 
 .characters-wrapper {
@@ -63,6 +67,7 @@
   background: rgba(180, 200, 230, 0.35);
   border-radius: 50%;
   filter: blur(80px);
+  z-index: 1;
 }
 
 .left-panel::before {
@@ -75,6 +80,58 @@
   background: rgba(200, 220, 240, 0.3);
   border-radius: 50%;
   filter: blur(100px);
+  z-index: 1;
+}
+
+/* Theme decor layer (樱花树 / 云 / 星月) */
+.theme-decor-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  overflow: hidden;
+}
+.theme-decor-layer .decor {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+html[data-theme="pink"]  .theme-decor-layer .decor-pink  { opacity: 1; }
+html[data-theme="white"] .theme-decor-layer .decor-white { opacity: 1; }
+html[data-theme="black"] .theme-decor-layer .decor-black { opacity: 1; }
+
+/* 粉色：樱花树 — 靠左，树冠在左上方，树干在左侧下方 */
+.theme-decor-layer .sakura-tree {
+  position: absolute;
+  left: -30px;
+  bottom: 0;
+  width: 340px;
+  height: 110%;
+  filter: drop-shadow(0 6px 18px rgba(255, 150, 180, 0.18));
+}
+
+/* 白色：柔和云朵装饰 */
+.theme-decor-layer .cloud-decor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* 黑色：星月装饰 */
+.theme-decor-layer .star-decor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  animation: star-twinkle 3s ease-in-out infinite alternate;
+}
+@keyframes star-twinkle {
+  from { opacity: 0.85; }
+  to   { opacity: 1; }
 }
 
 /* Right Panel */
@@ -82,10 +139,11 @@
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  background: #fff;
+  background: var(--page-bg, #fff);
   padding: 40px;
-  overflow-y: auto;
   padding-top: 60px;
+  overflow-y: auto;
+  transition: background 0.4s ease;
 }
 
 .form-container {
@@ -113,14 +171,16 @@
 .form-header h1 {
   font-size: 28px;
   font-weight: 700;
-  color: #1a1a2e;
+  color: var(--text-primary);
   letter-spacing: -0.5px;
   margin-bottom: 6px;
+  transition: color 0.4s ease;
 }
 
 .form-header p {
   font-size: 14px;
-  color: #888;
+  color: var(--text-tertiary);
+  transition: color 0.4s ease;
 }
 
 /* Form fields */
@@ -132,8 +192,9 @@
   display: block;
   font-size: 13px;
   font-weight: 500;
-  color: #333;
+  color: var(--text-secondary);
   margin-bottom: 8px;
+  transition: color 0.4s ease;
 }
 
 .form-group .input-wrapper {
@@ -144,14 +205,14 @@
   width: 100%;
   height: 48px;
   border: none;
-  border-bottom: 1.5px solid #e0e0e0;
+  border-bottom: 1.5px solid var(--input-border);
   padding: 0 40px 0 0;
   font-size: 15px;
   font-family: inherit;
-  color: #1a1a2e;
-  background: transparent;
+  color: var(--text-primary);
+  background: var(--input-bg);
   outline: none;
-  transition: border-color 0.3s;
+  transition: border-color 0.3s, color 0.4s ease;
 }
 
 .form-group input:focus {
@@ -159,7 +220,8 @@
 }
 
 .form-group input::placeholder {
-  color: #ccc;
+  color: var(--input-placeholder);
+  transition: color 0.4s ease;
 }
 
 .toggle-password {
@@ -170,13 +232,13 @@
   background: none;
   border: none;
   cursor: pointer;
-  color: #666;
+  color: var(--text-tertiary);
   padding: 6px;
   transition: color 0.2s;
 }
 
 .toggle-password:hover {
-  color: #333;
+  color: var(--text-secondary);
 }
 
 /* Remember & Forgot */
@@ -192,8 +254,9 @@
   align-items: center;
   gap: 8px;
   font-size: 13px;
-  color: #555;
+  color: var(--text-secondary);
   cursor: pointer;
+  transition: color 0.4s ease;
 }
 
 .remember-me input[type="checkbox"] {
@@ -223,7 +286,8 @@
   gap: 6px;
   margin-bottom: 24px;
   font-size: 13px;
-  color: #666;
+  color: var(--text-tertiary);
+  transition: color 0.4s ease;
 }
 
 .form-footer #router-link {
@@ -254,16 +318,16 @@
   width: 100%;
   height: 50px;
   border-radius: 25px;
-  border: 1.5px solid #1a1a2e;
-  background: #1a1a2e;
-  color: #fff;
+  border: 1.5px solid var(--btn-dark-border);
+  background: var(--btn-dark-bg);
+  color: var(--btn-dark-fg);
   font-size: 15px;
   font-weight: 600;
   font-family: inherit;
   cursor: pointer;
   overflow: hidden;
   margin-bottom: 14px;
-  transition: all 0.3s;
+  transition: all 0.3s, background 0.4s ease, color 0.4s ease, border-color 0.4s ease;
 }
 
 .btn-login:disabled {
@@ -306,9 +370,10 @@
   height: 360px;
   cursor: pointer;
   overflow: hidden;
-  background: #fff;
+  background: var(--card-bg);
   border-radius: 16px;
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.08), 0 2px 12px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--soft-shadow);
+  transition: background 0.4s ease, box-shadow 0.4s ease;
 }
 
 .char-img {
@@ -367,15 +432,23 @@
 
 
 .typing-text {
-  color: #000000;
+  color: var(--typing-fg);
   font-weight: 700;
   font-size: 22px;
   padding: 2px 2px;
   white-space: nowrap;
+  transition: color 0.4s ease;
   text-shadow:
-    rgba(255, 255, 255, 0.6) 0 0 3px,
+    rgba(255, 255, 255, 0.25) 0 0 3px,
     rgb(248, 248, 248) 0 0 8px,
     rgb(248, 244, 244) 0 0 14px;
+}
+
+html[data-theme="black"] .typing-text {
+  text-shadow:
+    0 0 3px rgba(255, 255, 255, 0.6),
+    0 0 10px rgba(200, 180, 255, 0.5),
+    0 0 18px rgba(108, 63, 245, 0.35);
 }
 
 .typing-cursor {

@@ -6,7 +6,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
 
 interface Bullet {
   id: number
@@ -130,6 +130,8 @@ function drawBullets() {
   if (!ctx) return
   ctx.clearRect(0, 0, W, H)
 
+  if (props.enabled === false) return
+
   bullets.forEach(b => {
     ctx!.save()
     ctx!.globalAlpha = b.opacity
@@ -163,27 +165,43 @@ function drawBullets() {
 }
 
 function animate() {
-  updateBullets()
-  drawBullets()
+  // 当 disabled 时，不生成新弹幕，并且清空已有弹幕
+  if (props.enabled === false) {
+    if (bullets.length > 0) bullets = []
+    if (ctx) ctx.clearRect(0, 0, W, H)
+  } else {
+    updateBullets()
 
-  // 定时生成新弹幕
-  spawnTimer++
-  const density = props.density ?? 1
-  const spawnInterval = Math.max(15, 60 / density)  // 每 N 帧生成一个
-  if (spawnTimer >= spawnInterval && (props.enabled !== false)) {
-    spawnBullet()
-    spawnTimer = 0
-    // 有时一次生成多个
-    if (Math.random() > 0.7) {
-      setTimeout(() => spawnBullet(), 200)
-    }
-    if (Math.random() > 0.9) {
-      setTimeout(() => spawnBullet(), 400)
+    // 定时生成新弹幕
+    spawnTimer++
+    const density = props.density ?? 1
+    const spawnInterval = Math.max(15, 60 / density)  // 每 N 帧生成一个
+    if (spawnTimer >= spawnInterval) {
+      spawnBullet()
+      spawnTimer = 0
+      // 有时一次生成多个
+      if (Math.random() > 0.7) {
+        setTimeout(() => spawnBullet(), 200)
+      }
+      if (Math.random() > 0.9) {
+        setTimeout(() => spawnBullet(), 400)
+      }
     }
   }
 
+  drawBullets()
+
   rafId = requestAnimationFrame(animate)
 }
+
+// 监听 enabled 变化：重新开启时预填一些弹幕
+watch(() => props.enabled, (newVal) => {
+  if (newVal && bullets.length === 0) {
+    for (let i = 0; i < 5; i++) {
+      setTimeout(() => spawnBullet(), i * 400)
+    }
+  }
+})
 
 onMounted(() => {
   if (!canvasRef.value) return

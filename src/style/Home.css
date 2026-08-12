@@ -4,6 +4,8 @@
   grid-template-columns: 1fr 1fr;
   height: 100vh;
   overflow: hidden;
+  background: var(--page-bg, #1a1a2e);
+  transition: background 0.4s ease;
 }
 
 /* Left Panel */
@@ -12,13 +14,14 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
-  background: linear-gradient(135deg,
+  background: var(--page-bg, linear-gradient(135deg,
       #d4d0dc 0%,
       #c8c4d0 50%,
-      #bbb7c5 100%);
+      #bbb7c5 100%));
   padding: 32px 36px;
   overflow: hidden;
   height: 100vh;
+  transition: background 0.4s ease;
 }
 
 /* ============ 他人简历列表 ============ */
@@ -40,16 +43,18 @@
 .section-header h2 {
   font-size: 16px;
   font-weight: 700;
-  color: #1a1a2e;
+  color: var(--text-primary);
   margin: 0;
+  transition: color 0.4s ease;
 }
 
 .list-count {
   font-size: 12px;
-  color: #888;
-  background: rgba(255, 255, 255, 0.6);
+  color: var(--text-tertiary);
+  background: var(--card-bg-soft);
   padding: 3px 10px;
   border-radius: 10px;
+  transition: color 0.4s ease, background 0.4s ease;
 }
 
 .resume-list {
@@ -80,17 +85,17 @@
   align-items: center;
   gap: 12px;
   padding: 12px 14px;
-  background: rgba(255, 255, 255, 0.75);
+  background: var(--card-bg-soft);
   backdrop-filter: blur(8px);
   border-radius: 12px;
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition: all 0.25s ease, background 0.4s ease;
   border: 1px solid transparent;
 }
 
 .resume-list-item:hover {
   transform: translateY(-2px);
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--card-bg-semi);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
   border-color: rgba(108, 63, 245, 0.3);
 }
@@ -128,8 +133,9 @@
 .item-name {
   font-size: 14px;
   font-weight: 600;
-  color: #1a1a2e;
+  color: var(--text-primary);
   margin: 0 0 2px;
+  transition: color 0.4s ease;
 }
 
 .item-title {
@@ -140,14 +146,16 @@
 
 .item-meta {
   font-size: 11px;
-  color: #888;
+  color: var(--text-tertiary);
   display: flex;
   align-items: center;
   gap: 4px;
+  transition: color 0.4s ease;
 }
 
 .meta-dot {
-  color: #ccc;
+  color: var(--text-quaternary);
+  transition: color 0.4s ease;
 }
 
 .item-view-icon {
@@ -173,8 +181,9 @@
 .list-empty {
   text-align: center;
   padding: 40px 20px;
-  color: #aaa;
+  color: var(--text-quaternary);
   font-size: 13px;
+  transition: color 0.4s ease;
 }
 
 /* ============ 我的简历 ============ */
@@ -189,17 +198,19 @@
   gap: 10px;
   font-size: 16px;
   font-weight: 600;
-  color: #fff;
+  color: var(--logo-fg);
   z-index: 10;
   position: relative;
+  transition: color 0.4s ease;
 }
 
 .left-panel .logo svg {
   width: 28px;
   height: 28px;
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--logo-svg-bg);
   padding: 4px;
   border-radius: 6px;
+  transition: background 0.4s ease, color 0.4s ease;
 }
 
 .characters-wrapper {
@@ -215,9 +226,10 @@
   display: flex;
   gap: 28px;
   font-size: 13px;
-  color: rgba(80, 70, 90, 0.7);
+  color: var(--text-tertiary);
   z-index: 10;
   position: relative;
+  transition: color 0.4s ease;
 }
 
 .left-panel .footer-links a {
@@ -227,7 +239,7 @@
 }
 
 .left-panel .footer-links a:hover {
-  color: #333;
+  color: var(--text-primary);
 }
 
 /* Resume Preview Card */
@@ -235,12 +247,12 @@
   position: relative;
   width: 100%;
   max-width: 320px;
-  background: rgba(255, 255, 255, 0.85);
+  background: var(--card-bg-semi);
   backdrop-filter: blur(12px);
   border-radius: 16px;
   padding: 24px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s ease, background 0.4s ease;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   z-index: 10;
 }
@@ -278,8 +290,9 @@
 .preview-name {
   font-size: 16px;
   font-weight: 700;
-  color: #1a1a2e;
+  color: var(--text-primary);
   margin: 0 0 4px;
+  transition: color 0.4s ease;
 }
 
 .preview-title {
@@ -310,8 +323,9 @@
 
 .preview-divider {
   height: 1px;
-  background: rgba(0, 0, 0, 0.08);
+  background: var(--divider-line);
   margin: 16px 0;
+  transition: background 0.4s ease;
 }
 
 .preview-sections {
@@ -328,15 +342,17 @@
 
 .section-label {
   width: 36px;
-  color: #999;
+  color: var(--text-tertiary);
   flex-shrink: 0;
+  transition: color 0.4s ease;
 }
 
 .section-value {
-  color: #444;
+  color: var(--text-secondary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  transition: color 0.4s ease;
 }
 
 .preview-skills {
@@ -360,10 +376,10 @@
   gap: 8px;
   margin-top: 16px;
   padding-top: 12px;
-  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  border-top: 1px solid var(--divider-line);
   font-size: 12px;
-  color: #999;
-  transition: color 0.3s ease;
+  color: var(--text-tertiary);
+  transition: color 0.3s ease, border-color 0.4s ease;
 }
 
 .resume-preview-card:hover .preview-footer {
@@ -411,7 +427,7 @@
   font-weight: 600;
   transition: all 0.3s ease;
   box-shadow: 0 2px 8px rgba(108, 63, 245, 0.3);
-  border: 2px solid rgba(255, 255, 255, 0.8);
+  border: 2px solid var(--avatar-ring);
 }
 
 .user-avatar:hover .avatar-circle {
@@ -425,13 +441,13 @@
   left: 50%;
   transform: translateX(-50%) translateY(10px);
   width: 220px;
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--card-bg-strong);
   backdrop-filter: blur(12px);
   border-radius: 14px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
   opacity: 0;
   visibility: hidden;
-  transition: all 0.25s ease;
+  transition: all 0.25s ease, background 0.4s ease;
   padding: 16px;
 }
 
@@ -468,8 +484,9 @@
 .panel-username {
   font-size: 15px;
   font-weight: 700;
-  color: #1a1a2e;
+  color: var(--text-primary);
   margin-bottom: 2px;
+  transition: color 0.4s ease;
 }
 
 .panel-title {
@@ -479,8 +496,9 @@
 
 .panel-divider {
   height: 1px;
-  background: rgba(0, 0, 0, 0.08);
+  background: var(--divider-line);
   margin-bottom: 8px;
+  transition: background 0.4s ease;
 }
 
 .panel-menu {
@@ -496,9 +514,9 @@
   padding: 8px 10px;
   border-radius: 8px;
   font-size: 13px;
-  color: #444;
+  color: var(--text-secondary);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s ease, color 0.4s ease;
 }
 
 .menu-item:hover {
@@ -530,6 +548,7 @@
   background: rgba(180, 170, 200, 0.25);
   border-radius: 50%;
   filter: blur(80px);
+  z-index: 1;
 }
 
 .left-panel::before {
@@ -542,6 +561,53 @@
   background: rgba(200, 195, 210, 0.2);
   border-radius: 50%;
   filter: blur(100px);
+  z-index: 1;
+}
+
+/* Theme decor layer (樱花树 / 云 / 星月) */
+.theme-decor-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  overflow: hidden;
+}
+.theme-decor-layer .decor {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+html[data-theme="pink"]  .theme-decor-layer .decor-pink  { opacity: 1; }
+html[data-theme="white"] .theme-decor-layer .decor-white { opacity: 1; }
+html[data-theme="black"] .theme-decor-layer .decor-black { opacity: 1; }
+
+.theme-decor-layer .sakura-tree {
+  position: absolute;
+  left: -30px;
+  bottom: 0;
+  width: 340px;
+  height: 110%;
+  filter: drop-shadow(0 6px 18px rgba(255, 150, 180, 0.18));
+}
+.theme-decor-layer .cloud-decor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+.theme-decor-layer .star-decor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  animation: star-twinkle-home 3s ease-in-out infinite alternate;
+}
+@keyframes star-twinkle-home {
+  from { opacity: 0.85; }
+  to   { opacity: 1; }
 }
 
 /* Right Panel */
@@ -549,10 +615,11 @@
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  background: #fff;
+  background: var(--page-bg, #fff);
   padding: 40px;
-  overflow-y: auto;
   padding-top: 60px;
+  overflow-y: auto;
+  transition: background 0.4s ease;
 }
 
 .form-container {
@@ -709,15 +776,15 @@
 }
 
 .grid-item {
-  background: #f8f8f8;
+  background: var(--surface-bg);
   border-radius: 12px;
   padding: 16px;
-  transition: all 0.3s ease;
+  transition: all 0.3s ease, background 0.4s ease;
   cursor: pointer;
 }
 
 .grid-item:hover {
-  background: #f0f0f0;
+  background: var(--surface-hover);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
@@ -732,7 +799,8 @@
 .day-header p {
   font-size: 16px;
   font-weight: 600;
-  color: #1a1a2e;
+  color: var(--text-primary);
+  transition: color 0.4s ease;
 }
 
 .check-icon {
@@ -743,8 +811,9 @@
 
 .complete-time {
   font-size: 12px;
-  color: #888;
+  color: var(--text-tertiary);
   margin-bottom: 12px;
+  transition: color 0.4s ease;
 }
 
 .grid-item button {
@@ -756,9 +825,9 @@
   font-weight: 600;
   font-family: inherit;
   cursor: pointer;
-  transition: all 0.3s;
-  background: #1a1a2e;
-  color: #fff;
+  transition: all 0.3s, background 0.4s ease, color 0.4s ease;
+  background: var(--btn-dark-bg);
+  color: var(--btn-dark-fg);
 }
 
 .grid-item button:hover {
@@ -907,7 +976,7 @@
   min-width: 340px;
   max-width: 90vw;
   transform: translateY(10px);
-  animation: terminalSlideIn 0.4s ease forwards 0.1s both;
+  animation: terminalSlideIn 0.4s 0.1s ease forwards both;
 }
 
 @keyframes terminalSlideIn {
@@ -1309,14 +1378,14 @@
 
 .attack-bg .particle.p4 {
   top: 75%; left: 20%;
-  animation: particle1 1.1s linear infinite 0.2s;
+  animation: particle1 1.1s 0.2s linear infinite;
   background: rgba(255, 100, 100, 0.9);
   box-shadow: 0 0 8px rgba(255, 100, 100, 0.7);
 }
 
 .attack-bg .particle.p5 {
   top: 35%; left: 85%;
-  animation: particle2 1.4s linear infinite 0.5s;
+  animation: particle2 1.4s 0.5s linear infinite;
   width: 3px; height: 3px;
   background: rgba(255, 255, 100, 0.9);
   box-shadow: 0 0 6px rgba(255, 255, 100, 0.7);
@@ -1324,7 +1393,7 @@
 
 .attack-bg .particle.p6 {
   top: 55%; left: 15%;
-  animation: particle3 0.8s linear infinite 0.3s;
+  animation: particle3 0.8s 0.3s linear infinite;
   width: 2px; height: 2px;
 }
 
@@ -1471,7 +1540,7 @@
 }
 
 .warning-svg .tri-mark {
-  animation: markPop 0.2s steps(2) 0.1s forwards;
+  animation: markPop 0.2s 0.1s steps(2) forwards;
 }
 
 @keyframes markPop {
@@ -1658,7 +1727,7 @@
 
 .secured-overlay.secured-active .checkmark-circle {
   transform: scale(1);
-  animation: checkmarkBounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1.5s);
+  animation: checkmarkBounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1.5);
 }
 
 @keyframes checkmarkBounce {
@@ -1675,7 +1744,7 @@
   height: 140px;
   border: 3px solid rgba(76, 175, 80, 0.5);
   border-radius: 50%;
-  animation: pulseRing 2s ease-out infinite 0.5s;
+  animation: pulseRing 2s 0.5s ease-out infinite;
   opacity: 0;
 }
 
@@ -1695,7 +1764,7 @@
   stroke-width: 4;
   stroke-dasharray: 166;
   stroke-dashoffset: 166;
-  animation: drawCircle 0.8s ease forwards 0.3s;
+  animation: drawCircle 0.8s 0.3s ease forwards;
   filter: drop-shadow(0 0 8px rgba(76, 175, 80, 0.8));
 }
 
@@ -1704,7 +1773,7 @@
   stroke-width: 5;
   stroke-dasharray: 48;
   stroke-dashoffset: 48;
-  animation: drawCheck 0.5s ease forwards 1s;
+  animation: drawCheck 0.5s 1s ease forwards;
   filter: drop-shadow(0 0 6px rgba(76, 175, 80, 0.9));
 }
 
@@ -1724,7 +1793,8 @@
   letter-spacing: 4px;
   opacity: 0;
   text-shadow: 0 0 20px rgba(76, 175, 80, 0.9), 0 0 40px rgba(76, 175, 80, 0.5);
-  animation: securedTextIn 0.5s ease forwards 1.2s, securedTextGlow 2s ease infinite 2s;
+  /* 严格 <single-animation> 语法：两个 <time> 必须相邻（duration → delay），iteration-count 跟在后面 */
+  animation: securedTextIn 0.5s 1.2s ease forwards, securedTextGlow 2s 2s ease infinite;
 }
 
 @keyframes securedTextGlow {

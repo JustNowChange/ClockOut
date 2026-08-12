@@ -577,7 +577,9 @@ function getModuleIcon(type: string): string {
 }
 
 const goBack = () => {
-  router.back()
+  // 直接跳首页，不依赖 router.back / 历史栈
+  // 因为硬刷新 / 直接打开 Resume 链接时历史栈为空，back 会导致卡住或后退到外站
+  router.push('/home')
 }
 </script>
 
