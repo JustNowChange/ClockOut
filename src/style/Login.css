@@ -373,9 +373,9 @@
   padding: 2px 2px;
   white-space: nowrap;
   text-shadow:
-    0 0 3px rgba(255, 255, 255, 0.6),
-    0 0 8px rgb(248, 248, 248),
-    0 0 14px rgb(248, 244, 244);
+    rgba(255, 255, 255, 0.6) 0 0 3px,
+    rgb(248, 248, 248) 0 0 8px,
+    rgb(248, 244, 244) 0 0 14px;
 }
 
 .typing-cursor {

@@ -140,6 +140,7 @@ import CinematicIntro from '../components/CinematicIntro.vue'
 import DanmakuOverlay from '../components/DanmakuOverlay.vue'
 import charDefaultImg from '../assets/char-default.png'
 import charClickedImg from '../assets/char-clicked.png'
+import { preloadImages } from '../utils/imageCache'
 
 const {
   username,
@@ -183,6 +184,8 @@ function onGlobalClick(e: MouseEvent) {
 onMounted(() => {
   window.addEventListener('click', onGlobalClick)
   loadRememberedUsername()
+  // 预加载角色图片到浏览器缓存
+  preloadImages([charDefaultImg, charClickedImg])
   setTimeout(() => { startTypingAnimation() }, 800)
 })
 
