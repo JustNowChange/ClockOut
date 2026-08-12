@@ -1,7 +1,13 @@
 <template>
-  <div class="login-page">
+  <div class="login-page" :class="{ 'page-ready': !showIntro }">
+    <!-- 电影开场动画 -->
+    <CinematicIntro v-if="showIntro" :visible="showIntro" @complete="onIntroComplete" />
+
+    <!-- 实时弹幕背景 -->
+    <DanmakuOverlay v-if="!showIntro" :density="1" :enabled="true" />
+
     <!-- Loading Overlay -->
-    <LoadingOverlay 
+    <LoadingOverlay
       v-if="showLoading"
       :duration="3000"
       @complete="onAnimationComplete"
@@ -10,7 +16,7 @@
     <!-- Left Panel -->
     <div class="left-panel">
       <div class="logo">
-        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2">
           <path d="M12 2L15 9H9L12 2Z" />
           <path d="M12 22L9 15H15L12 22Z" />
           <path d="M2 12L9 9V15L2 12Z" />
@@ -28,44 +34,11 @@
 
       <div class="characters-wrapper">
         <div class="characters-scene" id="characters-scene">
-          <!-- Purple character -->
-          <div class="character char-purple" id="char-purple">
-            <div class="eyes" id="purple-eyes" style="left: 45px; top: 40px; gap: 28px">
-              <div class="eyeball" id="purple-eye-l" style="width: 18px; height: 18px">
-                <div class="pupil" id="purple-pupil-l" style="width: 7px; height: 7px"></div>
-              </div>
-              <div class="eyeball" id="purple-eye-r" style="width: 18px; height: 18px">
-                <div class="pupil" id="purple-pupil-r" style="width: 7px; height: 7px"></div>
-              </div>
-            </div>
-          </div>
-          <!-- Black character -->
-          <div class="character char-black" id="char-black">
-            <div class="eyes" id="black-eyes" style="left: 26px; top: 32px; gap: 20px">
-              <div class="eyeball" id="black-eye-l" style="width: 16px; height: 16px">
-                <div class="pupil" id="black-pupil-l" style="width: 6px; height: 6px"></div>
-              </div>
-              <div class="eyeball" id="black-eye-r" style="width: 16px; height: 16px">
-                <div class="pupil" id="black-pupil-r" style="width: 6px; height: 6px"></div>
-              </div>
-            </div>
-          </div>
-          <!-- Orange character -->
-          <div class="character char-orange" id="char-orange">
-            <div class="eyes" id="orange-eyes" style="left: 82px; top: 90px; gap: 28px">
-              <div class="bare-pupil" id="orange-pupil-l"></div>
-              <div class="bare-pupil" id="orange-pupil-r"></div>
-            </div>
-            <div class="orange-mouth" id="orange-mouth" style="left: 90px; top: 120px"></div>
-          </div>
-          <!-- Yellow character -->
-          <div class="character char-yellow" id="char-yellow">
-            <div class="eyes" id="yellow-eyes" style="left: 52px; top: 40px; gap: 20px">
-              <div class="bare-pupil" id="yellow-pupil-l"></div>
-              <div class="bare-pupil" id="yellow-pupil-r"></div>
-            </div>
-            <div class="yellow-mouth" id="yellow-mouth" style="left: 40px; top: 88px"></div>
-          </div>
+          <img
+            :src="charClicked ? charClickedImg : charDefaultImg"
+            alt="characters"
+            class="char-img"
+          />
         </div>
       </div>
     </div>
@@ -163,6 +136,10 @@ import { ref, watch, onMounted, onUnmounted } from 'vue'
 import useLogin from '../function/useLogin'
 import useCharacters from '../function/useCharacters'
 import LoadingOverlay from '../components/LoadingOverlay.vue'
+import CinematicIntro from '../components/CinematicIntro.vue'
+import DanmakuOverlay from '../components/DanmakuOverlay.vue'
+import charDefaultImg from '../assets/char-default.png'
+import charClickedImg from '../assets/char-clicked.png'
 
 const {
   username,
@@ -180,6 +157,43 @@ const {
 } = useLogin()
 
 const showLoading = ref(false)
+const showIntro = ref(true)
+const charClicked = ref(false)
+let charResetTimer: number | null = null
+
+const INTERACTIVE_SELECTORS = 'input, button, textarea, select, a, label, [role="button"], [contenteditable], .no-cute'
+
+function triggerCharacterChange() {
+  charClicked.value = true
+  if (charResetTimer) clearTimeout(charResetTimer)
+  charResetTimer = window.setTimeout(() => {
+    charClicked.value = false
+    charResetTimer = null
+  }, 400)
+}
+
+function onGlobalClick(e: MouseEvent) {
+  if (showIntro.value) return
+  const target = e.target as HTMLElement
+  if (!target) return
+  if (target.closest(INTERACTIVE_SELECTORS)) return
+  triggerCharacterChange()
+}
+
+onMounted(() => {
+  window.addEventListener('click', onGlobalClick)
+  loadRememberedUsername()
+  setTimeout(() => { startTypingAnimation() }, 800)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('click', onGlobalClick)
+  cleanupTypingTimers()
+})
+
+function onIntroComplete() {
+  showIntro.value = false
+}
 
 function onAnimationComplete() {
   showLoading.value = false
@@ -260,18 +274,6 @@ function cleanupTypingTimers() {
     clearTimer = null
   }
 }
-
-onMounted(() => {
-  loadRememberedUsername()
-  // 延迟一点启动打字动画
-  setTimeout(() => {
-    startTypingAnimation()
-  }, 800)
-})
-
-onUnmounted(() => {
-  cleanupTypingTimers()
-})
 
 const {
   setTyping,

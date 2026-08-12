@@ -156,6 +156,8 @@ export function useCharacters(options: {
   }
 
   function updateCharacters() {
+    // Characters replaced with static images - skip DOM manipulation
+    return
     const purple = document.getElementById('char-purple') as HTMLElement
     const black = document.getElementById('char-black') as HTMLElement
     const orange = document.getElementById('char-orange') as HTMLElement

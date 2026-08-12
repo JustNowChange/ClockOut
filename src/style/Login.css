@@ -3,6 +3,13 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   height: 100vh;
+  opacity: 0;
+  transform: scale(1.02);
+  transition: opacity 1.2s ease 0.3s, transform 1.2s ease 0.3s;
+}
+.login-page.page-ready {
+  opacity: 1;
+  transform: scale(1);
 }
 
 /* Left Panel */
@@ -11,10 +18,7 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  background: linear-gradient(135deg,
-      #d4d0dc 0%,
-      #c8c4d0 50%,
-      #bbb7c5 100%);
+  background: #fff;
   padding: 40px 48px;
   overflow: hidden;
 }
@@ -25,7 +29,7 @@
   gap: 10px;
   font-size: 16px;
   font-weight: 600;
-  color: #fff;
+  color: #333;
   z-index: 10;
   position: relative;
 }
@@ -33,9 +37,10 @@
 .left-panel .logo svg {
   width: 28px;
   height: 28px;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(0, 0, 0, 0.08);
   padding: 4px;
   border-radius: 6px;
+  color: #333;
 }
 
 .characters-wrapper {
@@ -55,7 +60,7 @@
   right: 15%;
   width: 260px;
   height: 260px;
-  background: rgba(180, 170, 200, 0.25);
+  background: rgba(180, 200, 230, 0.35);
   border-radius: 50%;
   filter: blur(80px);
 }
@@ -67,7 +72,7 @@
   left: 10%;
   width: 350px;
   height: 350px;
-  background: rgba(200, 195, 210, 0.2);
+  background: rgba(200, 220, 240, 0.3);
   border-radius: 50%;
   filter: blur(100px);
 }
@@ -294,104 +299,35 @@
   opacity: 1;
 }
 
-/* ============ ANIMATED CHARACTERS ============ */
+/* ============ CHARACTER IMAGES ============ */
 .characters-scene {
   position: relative;
   width: 480px;
   height: 360px;
+  cursor: pointer;
+  overflow: hidden;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.08), 0 2px 12px rgba(0, 0, 0, 0.04);
 }
 
-.character {
+.char-img {
   position: absolute;
   bottom: 0;
-  transition: all 0.7s ease-in-out;
-  transform-origin: bottom center;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 100%;
+  max-height: 100%;
+  height: auto;
+  width: 100%;
+  object-fit: contain;
+  transition: transform 0.3s ease, filter 0.3s ease;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
-.char-purple {
-  left: 60px;
-  width: 170px;
-  height: 370px;
-  background: #6c3ff5;
-  border-radius: 10px 10px 0 0;
-  z-index: 1;
-}
-
-.char-black {
-  left: 220px;
-  width: 115px;
-  height: 290px;
-  background: #2d2d2d;
-  border-radius: 8px 8px 0 0;
-  z-index: 2;
-}
-
-.char-orange {
-  left: 0;
-  width: 230px;
-  height: 190px;
-  background: #ff9b6b;
-  border-radius: 115px 115px 0 0;
-  z-index: 3;
-}
-
-.char-yellow {
-  left: 290px;
-  width: 135px;
-  height: 215px;
-  background: #e8d754;
-  border-radius: 68px 68px 0 0;
-  z-index: 4;
-}
-
-.eyes {
-  position: absolute;
-  display: flex;
-  transition: all 0.7s ease-in-out;
-}
-
-.eyeball {
-  border-radius: 50%;
-  background: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: height 0.15s ease;
-  overflow: hidden;
-}
-
-.pupil {
-  border-radius: 50%;
-  background: #2d2d2d;
-  transition: transform 0.1s ease-out;
-}
-
-.bare-pupil {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: #2d2d2d;
-  transition: transform 0.7s ease-in-out;
-}
-
-.yellow-mouth {
-  position: absolute;
-  width: 50px;
-  height: 4px;
-  background: #2d2d2d;
-  border-radius: 2px;
-  transition: all 0.7s ease-in-out;
-}
-
-.orange-mouth {
-  position: absolute;
-  width: 28px;
-  height: 14px;
-  border: 3px solid #2d2d2d;
-  border-top: none;
-  border-radius: 0 0 14px 14px;
-  opacity: 0;
-  transition: all 0.7s ease-in-out;
+.characters-scene:hover .char-img {
+  transform: translateX(-50%) scale(1.03);
 }
 
 /* Error animation */
@@ -411,10 +347,6 @@
   animation: shake-head 0.5s ease-in-out;
 }
 
-.orange-mouth.visible {
-  opacity: 1;
-}
-
 /* ============ Typing Effect ============ */
 .typing-container {
   position: relative;
@@ -428,9 +360,6 @@
   font-size: 22px;
   line-height: 1.6;
   letter-spacing: 2px;
-  padding: 16px 9px;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
   align-self: center;
   margin-left: auto;
   margin-right: auto;
@@ -446,7 +375,7 @@
   text-shadow:
     0 0 3px rgba(255, 255, 255, 0.6),
     0 0 8px rgb(248, 248, 248),
-    0 0 14px rgb(248, 244, 244),  
+    0 0 14px rgb(248, 244, 244);
 }
 
 .typing-cursor {

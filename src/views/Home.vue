@@ -1,4 +1,4 @@
-<template>
+﻿﻿<template>
   <div class="login-page">
     <!-- Left Panel -->
     <div class="left-panel" :class="{ 'animate-in': animated }">
