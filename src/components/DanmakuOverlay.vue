@@ -35,16 +35,17 @@ let spawnTimer = 0
 
 // 弹幕内容池 - 配合 ClockOut 打卡系统主题
 const bulletPool = [
+  { text: '百合nb！', color: '#a78bfa' },
   { text: '今天又是元气满满的一天！', color: '#a78bfa' },
   { text: '进厂打工，永不为奴！', color: '#60a5fa' },
   { text: '大专巅峰，谁敢叼我！', color: '#f472b6' },
   { text: '流水线大神归位 ', color: '#fbbf24' },
-  { text: '打卡第 365 天 ', color: '#34d399' },
+  { text: '打卡第 5201314 天 ', color: '#34d399' },
   { text: '夜班人的快乐就是这么简单', color: '#22d3ee' },
   { text: '本科悔而我不悔！', color: '#f87171' },
   { text: '不过是些许夜班罢了 ', color: '#c084fc' },
   { text: '学习使我快乐（假的）', color: '#60a5fa' },
-  { text: '今天的学习 KPI 已完成 ✓', color: '#34d399' },
+  { text: 'Ciallo～', color: '#34d399' },
   { text: '苦力蛊，启动！', color: '#fbbf24' },
   { text: '牛马蛊，进化！', color: '#f472b6' },
   { text: '吗喽蛊，终焉形态！', color: '#a78bfa' },
@@ -61,7 +62,7 @@ const bulletPool = [
   { text: '大专巅峰修为，已成！', color: '#34d399' },
   { text: '打卡系统好评 ', color: '#22d3ee' },
   { text: '简历一键生成，太方便了', color: '#a78bfa' },
-  { text: '今天学了 8 小时 ', color: '#f472b6' },
+  { text: '今天真不错啊!', color: '#f472b6' },
   { text: '我的简历是最强的！', color: '#fbbf24' },
   { text: '进厂第一天，想回家', color: '#f87171' },
   { text: '三班倒也能学习的！', color: '#60a5fa' },

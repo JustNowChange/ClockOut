@@ -1,4 +1,4 @@
-﻿<template>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<template>
   <div class="login-page">
     <!-- Left Panel -->
     <div class="left-panel" :class="{ 'animate-in': animated }">
@@ -194,26 +194,8 @@
           </svg>
         </div>
         <div class="form-header">
-          <h1>打卡系统</h1>
+          <h1>ClockOut</h1>
           <p>{{ currentTime }}</p>
-        </div>
-
-        <!-- Study Days List -->
-        <div class="study-days-list">
-          <div class="grid-item"
-            v-for="(day, idx) in studyDays"
-            :key="day.id"
-            :style="animated ? { animation: 'fadeInUp 0.8s ease forwards', animationDelay: (1.2 + idx * 0.12) + 's' } : {}"
-            @click="goToStudy(day)">
-            <div class="day-header">
-              <p>{{ day.name }}</p>
-              <span v-if="day.status === 1" class="check-icon">✓</span>
-            </div>
-            <p v-if="day.status === 1 && day.completeTime" class="complete-time">{{ day.completeTime }}</p>
-            <button :class="{ 'completed': day.status === 1 }">
-              {{ day.status === 1 ? '查看详情' : '开始学习' }}
-            </button>
-          </div>
         </div>
       </div>
     </div>
@@ -221,29 +203,29 @@
     <!-- User Avatar at bottom center -->
     <div class="user-avatar-wrapper" @mouseenter="showAvatarPanel = true" @mouseleave="showAvatarPanel = false">
       <div class="user-avatar" @click="toggleAvatarPanel">
-        <div class="avatar-circle">
-          <span>{{ resume.core.name.charAt(0) }}</span>
-        </div>
-      </div>
-
-      <!-- User Panel -->
-      <div class="avatar-panel" :class="{ 'visible': showAvatarPanel }">
-        <div class="panel-avatar">
-          <div class="panel-avatar-circle">
+          <div class="avatar-circle">
             <span>{{ resume.core.name.charAt(0) }}</span>
           </div>
         </div>
-        <div class="panel-info">
-          <div class="panel-username">{{ resume.core.name }}</div>
-          <div class="panel-title">{{ resume.core.title }}</div>
-        </div>
-        <div class="panel-divider"></div>
-        <div class="panel-menu">
-          <div class="menu-item logout" @click="handleLogout">
-            <span>退出登录</span>
+
+        <!-- User Panel -->
+        <div class="avatar-panel" :class="{ 'visible': showAvatarPanel }">
+          <div class="panel-avatar">
+            <div class="panel-avatar-circle">
+              <span>{{ resume.core.name.charAt(0) }}</span>
+            </div>
+          </div>
+          <div class="panel-info">
+            <div class="panel-username">{{ resume.core.name }}</div>
+            <div class="panel-title">{{ resume.core.title }}</div>
+          </div>
+          <div class="panel-divider"></div>
+          <div class="panel-menu">
+            <div class="menu-item logout" @click="handleLogout">
+              <span>退出登录</span>
+            </div>
           </div>
         </div>
-      </div>
     </div>
 
     <!-- Fullscreen expand overlay with hacker loading effect -->
@@ -391,13 +373,11 @@
 import { ref, computed, onMounted, nextTick, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import useClock from '../function/useClock'
-import useStudyDays from '../function/useStudyDays'
 import { useAuth } from '../function/useAuth'
 import useResume from '../function/useResume'
 
 const router = useRouter()
 const { currentTime } = useClock()
-const { studyDays } = useStudyDays()
 const { user, fetchUserInfo, logout } = useAuth()
 const { resume, findModuleByType, resumeList, listLoading, fetchResumeList } = useResume()
 
@@ -1014,10 +994,6 @@ function onListItemClick(id: number) {
     pressedListId.value = null
     expandListItemToFullscreen(id)
   }, 200)
-}
-
-function goToStudy(day: any) {
-  router.push(`/clock?dayId=${day.id}`)
 }
 
 function handleLogout() {

@@ -1,4 +1,4 @@
-/* ============ LOGIN PAGE LAYOUT ============ */
+﻿/* ============ LOGIN PAGE LAYOUT ============ */
 .login-page {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1862,7 +1862,7 @@ html[data-theme="black"] .theme-decor-layer .decor-black { opacity: 1; }
   100% { transform: translateY(100%); }
 }
 
-/* Add secure mode particle effects */
+/* Secured mode particle effects */
 .secured-particle {
   position: absolute;
   width: 6px;

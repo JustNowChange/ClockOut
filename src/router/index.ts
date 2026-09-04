@@ -23,11 +23,6 @@ const routes = [
     component: () => import('../views/Home.vue')
   },
   {
-    path: '/clock',
-    name: 'Clock',
-    component: () => import('../views/Clock.vue')
-  },
-  {
     path: '/resume',
     name: 'Resume',
     component: () => import('../views/Resume.vue')
@@ -41,7 +36,7 @@ const router = createRouter({
 
 const AUTH_PAGES = ['/', '/register', '/register/form']
 // 受保护页面：未登录用户禁止访问
-const PROTECTED_PAGES = ['/home', '/clock', '/resume']
+const PROTECTED_PAGES = ['/home', '/resume']
 
 // ============================================================
 // 全局强制硬刷新：所有 SPA 跳转都改成浏览器级刷新（等价于 F5）
