@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<template>
+﻿﻿﻿﻿﻿﻿﻿<template>
   <div class="login-page">
     <!-- Left Panel -->
     <div class="left-panel" :class="{ 'animate-in': animated }">
@@ -194,7 +194,7 @@
           </svg>
         </div>
         <div class="form-header">
-          <h1>ClockOut</h1>
+          <h1>打卡系统</h1>
           <p>{{ currentTime }}</p>
         </div>
       </div>

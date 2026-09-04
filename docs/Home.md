@@ -63,7 +63,7 @@
 │   └── .form-container
 │       ├── .sparkle-icon (4星SVG)
 │       └── .form-header
-│           ├── h1: ClockOut      #   标题（原"打卡系统"，2026-09-04 随打卡模块移除改名）
+│           ├── h1: 打卡系统      #   标题（产品品牌名，保留不变，与已删 study_days 功能无关）
 │           └── p: currentTime    #   实时时间（useClock.ts，本地 Date）
 │
 ├── .user-avatar-wrapper          # 底部居中用户头像
@@ -93,15 +93,17 @@
 
 [src/function/useCharacters.ts](file:///h:/node-v24.18.0-win-x64/node-v24.18.0-win-x64/Workspace/Clock%20Out/src/function/useCharacters.ts)
 
+> 角色图片实际用于**登录页**（[Login.vue](file:///h:/node-v24.18.0-win-x64/node-v24.18.0-win-x64/Workspace/Clock%20Out/src/views/Login.vue)），详见 [Login.md · 8. 角色图片资源（WebP）](Login.md#8-角色图片资源webp)。Home 页本身不渲染角色图。
+
 | 资源 | 路径 |
 |---|---|
-| 默认图 | `src/assets/char-default.png` |
-| 点击图 | `src/assets/char-clicked.png` |
+| 默认图 | `src/assets/char-default.webp` |
+| 点击图 | `src/assets/char-clicked.webp` |
 
 ### 交互
-- 悬停：轻微放大 + 阴影
-- 点击：切到 clicked 图 + pressAndBounce 动画（cubic-bezier pressAndBounce）
-- 持续点击 3 次：随机切换角色颜色主题
+- 点击登录页空白区域：切到 clicked 图，400ms 后自动复位
+- 按压回弹动画：pressAndBounce（cubic-bezier press）
+- 旧版多角色 DOM 联动（眼球跟随/眨眼/偷看密码/输入对视等）已废弃：`useCharacters.updateCharacters()` 现为空实现（注释 `Characters replaced with static images - skip DOM manipulation`），保留函数仅为不破坏调用方
 
 ---
 

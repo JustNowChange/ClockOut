@@ -1,6 +1,63 @@
-# 变更记录 · 删除打卡模块（study_days / Clock）
+# 变更记录（Changelog）
 
-- **变更日期**：2026-09-04
+本文件记录前端（Clock Out）的重要变更，最新在最上。
+
+---
+
+## 变更 A · 2026-09-04 · 登录角色图 WebP 优化 + Home.vue 构建修复
+
+- **变更类型**：性能优化（图片资源） + 构建修复
+- **触发源**：登录页角色图片加载慢（白屏），参考 NewIdea 项目 `scripts/convert-webp.mjs` 的 PNG→WebP 方案
+
+### A1. 根因
+
+登录页角色图为超大 PNG，一次需加载 **5.3 MB** 才显示角色，但实际仅渲染在 480×360 的框内：
+
+| 文件 | 优化前 | 实际显示 |
+|---|---|---|
+| `src/assets/char-default.png` | 2.5 MB（2080×1856） | ~480px |
+| `src/assets/char-clicked.png` | 2.7 MB（2541×1650） | ~480px |
+
+### A2. 优化措施
+
+用 sharp 将两张 PNG 转 WebP（quality 82），长边缩放到 1024px（覆盖 2x 视网膜屏）：
+
+| 文件 | 优化后 | 尺寸 | 降幅 |
+|---|---|---|---|
+| `char-default.webp` | ~79 KB | 1024×914 | −96.9% |
+| `char-clicked.webp` | ~65 KB | 1024×665 | −97.6% |
+| **合计** | **144 KB** | — | **−97.3%** |
+
+### A3. 修改文件
+
+| 文件 | 操作 |
+|---|---|
+| `src/assets/char-default.webp` | 新增（由 char-default.png 转换缩放） |
+| `src/assets/char-clicked.webp` | 新增（由 char-clicked.png 转换缩放） |
+| [src/views/Login.vue](file:///h:/node-v24.18.0-win-x64/node-v24.18.0-win-x64/Workspace/Clock%20Out/src/views/Login.vue#L234-L235) | 2 行 import 由 `.png` 改为 `.webp` |
+| `src/assets/char-default.png` / `char-clicked.png` | 原图保留为备份，已不被引用（可删） |
+
+> `env.d.ts` 已有 `*.webp` 模块声明，TypeScript 无需改动；Vite 构建自动 hash 命名。
+
+### A4. Home.vue 构建修复（顺带）
+
+构建时报两处错误，根因是「变更 B」删打卡模块时 Home.vue 处于半修改状态：
+
+1. `[plugin:vite:vue] Invalid end tag` —— 文件缺少 `<template>` 根包裹标签（首行直接是 `<div class="login-page">`，但 script 前无 `</template>`）。
+2. `Could not resolve '../function/useStudyDays'` —— 模板与 script 仍残留 `studyDays` 数据绑定、`useStudyDays()` 调用、`goToStudy()` 函数，但对应 composable 文件已删。
+
+修复：补回 `<template>` / `</template>`；删除 `.study-days-list` 打卡卡片 DOM、`const { studyDays } = useStudyDays()`、`goToStudy()` 函数。左右两栏结构与所有样式类保持不变。
+
+### A5. 验证
+
+- `npm run build` 通过：`✓ 127 modules transformed` → `✓ built`
+- 构建产物：`dist/assets/char-default-*.webp 81KB`、`char-clicked-*.webp 66KB`
+- 角色交互（点击空白切换表情、400ms 复位、预加载缓存）逻辑未动
+
+---
+
+## 变更 B · 2026-09-04 · 删除打卡模块（study_days / Clock）
+
 - **触发源**：后端项目 `H:\项目1\ClockOut` 中标记为 `TODO 标记删除` 的代码
 - **变更类型**：破坏性删除（移除一个完整的业务模块）
 
@@ -119,7 +176,7 @@ export function uploadImage(data: FormData): Promise<ApiResult<string>> {
 
 原 `<div class="study-days-list">` 内部的 `.grid-item v-for`（渲染 `studyDays` 数据源，点击跳转 `/clock?dayId=...`）整段删除。
 
-`.form-header` 中的标题文字由 `打卡系统` 改为 `ClockOut`（品牌名，去除打卡语义），但 `h1 / p(currentTime)` 的 DOM 结构与 CSS 类完全保持。
+`.form-header` 中的标题文字「打卡系统」**保留不变**（属产品品牌名，与已删除的 study_days 打卡功能无关）；`h1 / p(currentTime)` 的 DOM 结构与 CSS 类完全保持。
 
 **② script 删除导入与变量**
 

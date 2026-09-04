@@ -231,8 +231,8 @@ import useCharacters from '../function/useCharacters'
 import LoadingOverlay from '../components/LoadingOverlay.vue'
 import CinematicIntro from '../components/CinematicIntro.vue'
 import DanmakuOverlay from '../components/DanmakuOverlay.vue'
-import charDefaultImg from '../assets/char-default.png'
-import charClickedImg from '../assets/char-clicked.png'
+import charDefaultImg from '../assets/char-default.webp'
+import charClickedImg from '../assets/char-clicked.webp'
 import { preloadImages } from '../utils/imageCache'
 
 const {
