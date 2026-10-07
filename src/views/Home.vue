@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿<template>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<template>
   <div class="login-page">
     <!-- Left Panel -->
     <div class="left-panel" :class="{ 'animate-in': animated }">
@@ -996,8 +996,9 @@ function onListItemClick(id: number) {
   }, 200)
 }
 
-function handleLogout() {
-  logout()
+async function handleLogout() {
+  // 等登出请求落地(或800ms超时)再硬跳转, 避免导航中断请求导致后端会话未删除
+  await logout()
   window.location.href = '/'
 }
 

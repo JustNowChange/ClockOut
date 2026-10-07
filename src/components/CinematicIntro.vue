@@ -1,6 +1,6 @@
 <template>
   <Teleport to="body">
-    <div v-if="visible" class="fireworks-intro" :class="{ 'fade-out': phase === 'exiting' }">
+    <div v-if="visible" class="fireworks-intro" :class="{ 'fade-out': phase === 'exiting' }" @click="skipIntro">
       <canvas ref="canvasRef" class="fw-canvas"></canvas>
 
       <!-- Logo -->
@@ -16,6 +16,9 @@
         </div>
         <div class="logo-sub">Time · Study · Future</div>
       </div>
+
+      <!-- 跳过提示 -->
+      <div class="skip-hint" :class="{ 'skip-hint-show': hintVisible }">点击任意处跳过</div>
 
       <!-- Flash overlay on explosion -->
       <div class="flash-overlay" :class="{ 'flash-on': flashActive }"></div>
@@ -213,38 +216,67 @@ function hexToRgba(hex: string, alpha: number): string {
 }
 
 // 时序控制
+// 所有定时器统一登记: 点击跳过时全部清除, 防止跳过后仍在后台升空/连发/触发complete
+let introTimers: number[] = []
+let skipped = false
+const hintVisible = ref(false)
+
+function addTimeout(fn: () => void, ms: number): number {
+  const id = window.setTimeout(fn, ms)
+  introTimers.push(id)
+  return id
+}
+
+/**
+ * 鼠标点击跳过: 停止后续所有阶段 → 复用原有0.8s淡出 → 通知父组件卸载
+ */
+function skipIntro() {
+  if (skipped) return
+  skipped = true
+  introTimers.forEach(t => clearTimeout(t))
+  introTimers = []
+  hintVisible.value = false
+  phase.value = 'exiting'   // 触发 fade-out 过渡; 飞行中的烟花随淡出自然消散
+  introTimers.push(window.setTimeout(() => emit('complete'), 800))
+}
+
 function scheduleShow() {
   // 0-0.5s: 纯黑屏
-  setTimeout(() => {
+  addTimeout(() => {
     phase.value = 'rising'
     // 第一枚烟花从下方升空 - 白色
     launchRocket(W * 0.5, H * 0.25, '#ffffff')
   }, 500)
 
+  // 1.2s: 显示跳过提示
+  addTimeout(() => {
+    hintVisible.value = true
+  }, 1200)
+
   // 1.8s: 烟花爆炸 → Logo 出现
-  setTimeout(() => {
+  addTimeout(() => {
     logoVisible.value = true
   }, 1988)
 
   // 2.5s后进入持续模式
-  setTimeout(() => {
+  addTimeout(() => {
     phase.value = 'holding'
     const continuousFire = () => {
       if (phase.value === 'exiting') return
       launchRocket()
       if (Math.random() > 0.6) {
-        setTimeout(() => launchRocket(), 150 + Math.random() * 200)
+        addTimeout(() => launchRocket(), 150 + Math.random() * 200)
       }
       const next = 400 + Math.random() * 500
-      setTimeout(continuousFire, next)
+      addTimeout(continuousFire, next)
     }
     continuousFire()
   }, 2500)
 
   // 4s: 庆祝连发
-  setTimeout(() => {
+  addTimeout(() => {
     for (let i = 0; i < 5; i++) {
-      setTimeout(() => {
+      addTimeout(() => {
         launchRocket(
           W * (0.2 + Math.random() * 0.6),
           H * (0.1 + Math.random() * 0.3),
@@ -255,19 +287,19 @@ function scheduleShow() {
   }, 4000)
 
   // 6s: 更多烟花
-  setTimeout(() => {
+  addTimeout(() => {
     for (let i = 0; i < 4; i++) {
-      setTimeout(() => launchRocket(), i * 180)
+      addTimeout(() => launchRocket(), i * 180)
     }
   }, 6000)
 
   // 7.5s: 开始淡出
-  setTimeout(() => {
+  addTimeout(() => {
     phase.value = 'exiting'
   }, 7500)
 
   // 8.5s: 完成
-  setTimeout(() => {
+  addTimeout(() => {
     emit('complete')
   }, 8500)
 }
@@ -285,6 +317,8 @@ onMounted(() => {
 onBeforeUnmount(() => {
   cancelAnimationFrame(rafId)
   window.removeEventListener('resize', resize)
+  introTimers.forEach(t => clearTimeout(t))
+  introTimers = []
 })
 </script>
 
@@ -357,6 +391,23 @@ onBeforeUnmount(() => {
   letter-spacing: 0.5em;
   color: rgba(255, 255, 255, 0.8);
   text-transform: uppercase;
+}
+
+/* 跳过提示 */
+.skip-hint {
+  position: fixed;
+  right: 24px;
+  bottom: 20px;
+  z-index: 20;
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: rgba(255, 255, 255, 0.45);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+.skip-hint.skip-hint-show {
+  opacity: 1;
 }
 
 /* 爆炸闪光 */

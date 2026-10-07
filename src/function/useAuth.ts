@@ -1,11 +1,13 @@
 import { ref, computed } from 'vue'
 import { login as loginApi, register as registerApi, getUserInfo as getUserInfoApi } from '../api/auth'
-import { setToken, removeToken, getToken, setUserId, removeUserId, getUserId } from '../utils/http'
+import { setToken, removeToken, getToken, setUserId, removeUserId, getUserId, setRefreshToken, removeRefreshToken, ADMIN_UID } from '../utils/http'
+import { logout as logoutApi } from '../api/auth'
 
 export interface UserInfo {
   id: number
   username: string
-  status: number  // 在线状态：0-离线，1-在线
+  name?: string
+  email?: string
 }
 
 export interface AuthResult {
@@ -21,6 +23,9 @@ export function useAuth() {
   const error = ref<string | null>(null)
 
   const token = computed(() => getToken())
+
+  // 是否管理员：响应式 user 优先，页面硬刷新后从 sessionStorage 的 userId 兜底
+  const isAdmin = computed(() => (user.value?.id ?? getUserId()) === ADMIN_UID)
 
   function clearError() {
     error.value = null
@@ -56,12 +61,14 @@ export function useAuth() {
       
       if (response.code === 1 && response.data) {
         setToken(response.data.token)
-        setUserId(response.data.id)  // 保存 userId 到 localStorage
+        setRefreshToken(response.data.refreshToken)  // 刷新令牌存本标签 sessionStorage（多账号并行）
+        setUserId(response.data.id)  // 保存 userId 到 sessionStorage
         isAuthenticated.value = true
         user.value = {
           id: response.data.id,
           username: response.data.username,
-          status: 1  // 登录成功默认在线
+          name: response.data.name,
+          email: response.data.email
         }
         return { success: true, data: response.data }
       } else {
@@ -99,8 +106,18 @@ export function useAuth() {
     }
   }
 
-  function logout(): void {
+  async function logout(): Promise<void> {
+    // 通知后端删除本标签页这一条刷新令牌会话(按jti, 不影响其它标签)
+    // 注意顺序: 必须先等请求落地(或超时)再清 sessionStorage —— axios 请求拦截器
+    // 是异步微任务, 若先清存储, 拦截器 getToken() 拿到 null, 请求会因缺 token 被
+    // 后端 JWT 拦截器 401 打回, 后端根本执行不到登出
+    // 尽力而为: 800ms 未响应也放行(调用方随后跳转), 失败不阻塞本地登出
+    await Promise.race([
+      logoutApi().catch(() => {}),
+      new Promise<void>(r => setTimeout(r, 800))
+    ])
     removeToken()
+    removeRefreshToken()  // 清除本标签刷新令牌
     removeUserId()  // 清除 userId
     isAuthenticated.value = false
     user.value = null
@@ -120,7 +137,7 @@ export function useAuth() {
   async function fetchUserInfo(): Promise<void> {
     if (!checkAuth()) return
     
-    // 优先使用响应式数据中的 id，其次从 localStorage 获取
+    // 优先使用响应式数据中的 id，其次从 sessionStorage 获取
     const userId = user.value?.id || getUserId()
     if (!userId) return
     
@@ -130,8 +147,9 @@ export function useAuth() {
       if (response.code === 1 && response.data) {
         user.value = {
           id: response.data.id,
-          username: response.data.name,  // 后端返回的是 name
-          status: response.data.status
+          username: response.data.username || response.data.name || '',
+          name: response.data.name,
+          email: response.data.email
         }
       }
     } catch (err: any) {
@@ -141,6 +159,7 @@ export function useAuth() {
 
   return {
     isAuthenticated,
+    isAdmin,
     user,
     loading,
     error,

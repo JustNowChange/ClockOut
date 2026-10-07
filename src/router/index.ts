@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import type { RouteLocationRaw } from 'vue-router'
+import { getToken, getUserId, ADMIN_UID } from '../utils/http'
 
 const routes = [
   {
@@ -26,6 +27,11 @@ const routes = [
     path: '/resume',
     name: 'Resume',
     component: () => import('../views/Resume.vue')
+  },
+  {
+    path: '/admin',
+    name: 'Admin',
+    component: () => import('../views/Admin.vue')
   }
 ]
 
@@ -36,7 +42,41 @@ const router = createRouter({
 
 const AUTH_PAGES = ['/', '/register', '/register/form']
 // 受保护页面：未登录用户禁止访问
-const PROTECTED_PAGES = ['/home', '/resume']
+const PROTECTED_PAGES = ['/home', '/resume', '/admin']
+// 用户端页面：管理员禁止访问（两端完全隔离）
+const USER_PAGES = ['/home', '/resume']
+
+router.beforeEach((to, _from, next) => {
+  // 登录态在 sessionStorage：天然按标签页隔离，各标签独立鉴权
+  const token = getToken()
+  const isAdmin = getUserId() === ADMIN_UID
+
+  if (!token && PROTECTED_PAGES.includes(to.path)) {
+    // 未登录访问受保护页 → 硬跳登录（触发刷新）
+    window.location.href = '/'
+    return false
+  }
+
+  if (token && AUTH_PAGES.includes(to.path)) {
+    // 已登录访问登录页 → 按角色各回各端
+    window.location.href = isAdmin ? '/admin' : '/home'
+    return false
+  }
+
+  if (token && to.path === '/admin' && !isAdmin) {
+    // 普通用户闯管理端 → 回用户端
+    window.location.href = '/home'
+    return false
+  }
+
+  if (token && isAdmin && USER_PAGES.includes(to.path)) {
+    // 管理员闯用户端 → 回管理端（完全隔离）
+    window.location.href = '/admin'
+    return false
+  }
+
+  next()
+})
 
 // ============================================================
 // 全局强制硬刷新：所有 SPA 跳转都改成浏览器级刷新（等价于 F5）
@@ -77,29 +117,13 @@ router.back = () => {
   if (window.history.length > 1) {
     window.history.back()
   } else {
-    window.location.href = '/home'
+    window.location.href = getUserId() === ADMIN_UID ? '/admin' : '/home'
   }
 }
 
 router.go = (delta: number) => {
   window.history.go(delta)
 }
-
-router.beforeEach((to, _from, next) => {
-  const token = localStorage.getItem('clockout_token')
-
-  if (token && AUTH_PAGES.includes(to.path)) {
-    // 已登录访问登录页 → 硬跳首页（触发刷新）
-    window.location.href = '/home'
-    return false
-  } else if (!token && PROTECTED_PAGES.includes(to.path)) {
-    // 未登录访问受保护页 → 硬跳登录（触发刷新）
-    window.location.href = '/'
-    return false
-  } else {
-    next()
-  }
-})
 
 // 浏览器前进/后退按钮也强制刷新
 window.addEventListener('popstate', () => {

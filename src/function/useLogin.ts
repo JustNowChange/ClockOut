@@ -1,6 +1,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import useAuth from './useAuth'
+import { getUserId, ADMIN_UID } from '../utils/http'
 
 export function useLogin() {
   const router = useRouter()
@@ -63,7 +64,12 @@ export function useLogin() {
   }
 
   function navigateToHome() {
-    router.push('/home')
+    // 登录成功后按 uid 分流：uid === ADMIN_UID → /admin，其余 → /home
+    if (getUserId() === ADMIN_UID) {
+      router.push('/admin')
+    } else {
+      router.push('/home')
+    }
   }
 
   function triggerErrorRecovery() {

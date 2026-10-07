@@ -1,15 +1,19 @@
-import http, { ApiResult } from '../utils/http'
+import http, { ApiResult, getRefreshToken } from '../utils/http'
 
 export interface LoginResponse {
   id: number
+  name: string          // 昵称
   username: string
-  token: string
+  email?: string
+  token: string         // 访问令牌(短期)
+  refreshToken: string  // 刷新令牌(长期)，前端存 sessionStorage，刷新时放请求头
 }
 
 export interface UserInfoResponse {
   id: number
-  name: string     // 后端返回的是 name，不是 username
-  status: number   // 在线状态：0-离线，1-在线
+  name: string
+  username?: string
+  email?: string
 }
 
 export interface LoginRequest {
@@ -37,4 +41,12 @@ export function register(data: RegisterRequest): Promise<ApiResult<RegisterRespo
 
 export function getUserInfo(id: number): Promise<ApiResult<UserInfoResponse>> {
   return http.get(`/auth/user-info/${id}`).then(res => res.data)
+}
+
+// 退出登录: 刷新令牌放请求头，后端只删除当前标签页这一条会话(按jti)
+export function logout(): Promise<ApiResult<null>> {
+  const refreshToken = getRefreshToken()
+  return http.post('/auth/logout', null, {
+    headers: refreshToken ? { RefreshToken: refreshToken } : {}
+  }).then(res => res.data)
 }
